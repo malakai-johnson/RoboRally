@@ -5,6 +5,22 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "redirects": [
+        {
+            "source": "/index.html",
+            "destination": "/login.html",
+            "type": 301
+        },
+        {
+            "source": "/",
+            "destination": "/login.html",
+            "type": 301
+        }
     ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   }
 }
