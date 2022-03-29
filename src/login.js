@@ -19,6 +19,8 @@ import {
   doc,
   getDoc,
   addDoc,
+  setDoc,
+  updateDoc,
   collection,
   query,
   orderBy,
@@ -35,10 +37,24 @@ async function main()
   console.log('begin main');
 
   // Document elements
-  const startLoginButton = document.createElement("button");
-  startLoginButton.id = 'startLogin';
-  startLoginButton.innerHTML = 'LOGIN';
-  document.body.appendChild(startLoginButton);
+  // const startLoginButton = document.createElement("button");
+  // startLoginButton.id = 'startLogin';
+  // startLoginButton.innerHTML = 'LOGIN';
+  // document.body.appendChild(startLoginButton);
+
+  const startLoginButton = document.getElementById('startLogin');
+
+  const guestbookContainer = document.getElementById('guestbook-container');
+  const formMessage = document.getElementById('leave-message');
+  const input = document.getElementById('message');
+  const guestbook = document.getElementById('guestbook');
+
+  const startgameContainer = document.getElementById('startgame-container');
+  const formStartgame = document.getElementById('enter-gameid');
+  const inputGameid = document.getElementById('gameid');
+  const gameCreationMessages = document.getElementById('game-creation-messages');
+
+
 
   //
   // let rsvpListener = null;
@@ -47,6 +63,8 @@ async function main()
   const app = initializeApp(getFirebaseConfig());
   let auth = getAuth();
   let database = getFirestore();
+  let guestbookListener = null;
+
 
   if (auth)
   {
@@ -94,17 +112,93 @@ async function main()
     if (user) {
       startLoginButton.textContent = 'LOGOUT';
       // Show guestbook to logged-in users
-      // guestbookContainer.style.display = 'block';
+      guestbookContainer.style.display = 'block';
+      startgameContainer.style.display = 'block';
       // Subscribe to the guestbook collection
-      // subscribeGuestbook();
+      subscribeGuestbook(database, guestbookListener);
     } else {
       startLoginButton.textContent = 'LOGIN';
       // Hide guestbook for non-logged-in users
-      // guestbookContainer.style.display = 'none';
+      guestbookContainer.style.display = 'none';
+      startgameContainer.style.display = 'none';
       // Unsubscribe from the guestbook collection
-      // unsubscribeGuestbook();
+      unsubscribeGuestbook(guestbookListener);
     }
   });
 
+  // Listen to the form submission
+  formMessage.addEventListener('submit', async (e) => {
+    // Prevent the default form redirect
+    e.preventDefault();
+    // Write a new message to the database collection "guestbook"
 
+    addDoc(collection(database, 'guestbook'), {
+      text: input.value,
+      timestamp: Date.now(),
+      name: auth.currentUser.displayName,
+      userId: auth.currentUser.uid,
+    });
+
+    // clear message input field
+    input.value = '';
+    // Return false to avoid redirect
+    return false;
+  });
+
+  formStartgame.addEventListener('submit', async (e) => {
+    // Prevent the default form redirect
+    e.preventDefault();
+    // Write a new message to the database collection "guestbook"
+
+    const newGame = doc(database, 'Games', inputGameid.value);
+    const newGameSnap = await getDoc(newGame);
+
+    if(newGameSnap.exists()){
+      console.log("the gameid '" + inputGameid.value + "' is taken.");
+      const newGameCreationMessage = document.createElement('p');
+      newGameCreationMessage.textContent = "the gameid '" + inputGameid.value + "' is taken.";
+      gameCreationMessages.appendChild(newGameCreationMessage);
+
+    }else {
+      setDoc(newGame, {
+        gameid: inputGameid.value,
+        hostUserId: auth.currentUser.uid,
+        name: auth.currentUser.displayName,
+        timestamp: Date.now(),
+        playerList: [{userId: auth.currentUser.uid, username: auth.currentUser.displayName}],
+      });
+      localstorage.setItem("gameid", inputGameid.value);
+      const newGameCreationMessage = document.createElement('p');
+      newGameCreationMessage.textContent = "Created new game with gameid: '" + inputGameid.value + "'";
+      gameCreationMessages.appendChild(newGameCreationMessage);
+
+      window.location.href = '/host.html';
+    }
+    // clear message input field
+    inputGameid.value = '';
+    // Return false to avoid redirect
+    return false;
+  });
+}
+
+function subscribeGuestbook(database, guestbookListener) {
+  const q = query(collection(database, 'guestbook'), orderBy('timestamp', 'desc'));
+  guestbookListener = onSnapshot(q, (snaps) => {
+    // Reset page
+    guestbook.innerHTML = '';
+    // Loop through documents in database
+    snaps.forEach((doc) => {
+      // Create an HTML entry for each document and add it to the chat
+      const entry = document.createElement('p');
+      entry.textContent = doc.data().name + ': ' + doc.data().text;
+      guestbook.appendChild(entry);
+    });
+  });
+}
+// Unsubscribe from guestbook updates
+function unsubscribeGuestbook(guestbookListener) {
+  if (guestbookListener != null) {
+    guestbookListener();
+    guestbookListener = null;
+  }
 }

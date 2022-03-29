@@ -6,5 +6,32 @@
     <title>Robo Rally Online - Login</title>
   </head>
   <body>
+    <button id=startLogin>LOGIN</button>
+
+    <section id="startgame-container">
+      <h2>Create New Game</h2>
+      <form id="enter-gameid">
+        <label>Enter a new game id: </label>
+        <input type="text" id="gameid" />
+        <button type="submit">
+          <i class="material-icons">send</i>
+          <span>Send</span>
+        </button>
+      </form>
+      <section id="game-creation-messages"></section>
+    </section>
+
+    <section id="guestbook-container">
+      <h2>Discussion</h2>
+      <form id="leave-message">
+        <label>Leave a message: </label>
+        <input type="text" id="message" />
+        <button type="submit">
+          <i class="material-icons">send</i>
+          <span>Send</span>
+        </button>
+      </form>
+      <section id="guestbook"></section>
+    </section>
   </body>
 </html>
