@@ -1,6 +1,8 @@
 {
   "login.js": "auto/login.js",
+  "host.js": "auto/host.js",
   "player.js": "auto/player.js",
   "404.html": "auto/404.html",
-  "login.html": "auto/login.html"
+  "login.html": "auto/login.html",
+  "host.html": "auto/host.html"
 }

@@ -31,7 +31,6 @@ import * as firebaseui from 'firebaseui';
 
 
 console.log("load login.js");
-main();
 async function main()
 {
   console.log('begin main');
@@ -107,6 +106,7 @@ async function main()
     }
   });
 
+
   // Listen to the current Auth state
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -154,6 +154,14 @@ async function main()
     const newGameSnap = await getDoc(newGame);
 
     if(newGameSnap.exists()){
+      console.log("userId: " + auth.currentUser.uid);
+      console.log("gameHostId: " + newGameSnap.data().hostUserId);
+      if(auth.currentUser.uid == newGameSnap.data().hostUserId)
+      {
+        console.log("You own this game, redirectiong...");
+        localStorage.setItem("gameid", inputGameid.value);
+        location.href = '/host.html';
+      }
       console.log("the gameid '" + inputGameid.value + "' is taken.");
       const newGameCreationMessage = document.createElement('p');
       newGameCreationMessage.textContent = "the gameid '" + inputGameid.value + "' is taken.";
@@ -163,16 +171,16 @@ async function main()
       setDoc(newGame, {
         gameid: inputGameid.value,
         hostUserId: auth.currentUser.uid,
-        name: auth.currentUser.displayName,
+        hostDisplayName: auth.currentUser.displayName,
         timestamp: Date.now(),
         playerList: [{userId: auth.currentUser.uid, username: auth.currentUser.displayName}],
       });
-      localstorage.setItem("gameid", inputGameid.value);
+      localStorage.setItem("gameid", inputGameid.value);
       const newGameCreationMessage = document.createElement('p');
       newGameCreationMessage.textContent = "Created new game with gameid: '" + inputGameid.value + "'";
       gameCreationMessages.appendChild(newGameCreationMessage);
 
-      window.location.href = '/host.html';
+      location.href = '/host.html';
     }
     // clear message input field
     inputGameid.value = '';
@@ -180,6 +188,7 @@ async function main()
     return false;
   });
 }
+main();
 
 function subscribeGuestbook(database, guestbookListener) {
   const q = query(collection(database, 'guestbook'), orderBy('timestamp', 'desc'));
