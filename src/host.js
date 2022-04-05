@@ -1,6 +1,12 @@
 //This will be the script which manages the game logic and dispalys the board.
 import { getFirebaseConfig } from './firebaseConfig.js'
 
+import {
+  BoardState,
+  boardStateConverter,
+  getBoardState
+} from './boardState.js'
+
 // Firebase App (the core Firebase SDK) is always required
 import { initializeApp } from 'firebase/app';
 
@@ -66,6 +72,12 @@ async function main()
     isHost = false;
   }
   gameDetails.appendChild(detailsHost);
+
+  const gameboard = document.getElementById("board");
+  const boardState = await getBoardState(database, gameid);
+  let boardStateString = boardState.toString();
+  console.log(boardStateString)
+  gameboard.textContent = boardStateString;
 
 }
 main();

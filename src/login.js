@@ -3,6 +3,12 @@ import html from "./login.html"
 
 import { getFirebaseConfig } from './firebaseConfig.js'
 
+import {
+  BoardState,
+  boardStateConverter,
+  getBoardState
+} from './boardState.js'
+
 // Firebase App (the core Firebase SDK) is always required
 import { initializeApp } from 'firebase/app';
 
@@ -168,13 +174,27 @@ async function main()
       gameCreationMessages.appendChild(newGameCreationMessage);
 
     }else {
-      setDoc(newGame, {
-        gameid: inputGameid.value,
-        hostUserId: auth.currentUser.uid,
-        hostDisplayName: auth.currentUser.displayName,
-        timestamp: Date.now(),
-        playerList: [{userId: auth.currentUser.uid, username: auth.currentUser.displayName}],
-      });
+      initializeGame(database, auth, inputGameid.value, newGame);
+
+        //
+        // setDoc(newGame, {
+        //   gameid: gameid.value,
+        //   hostUserId: auth.currentUser.uid,
+        //   hostDisplayName: auth.currentUser.displayName,
+        //   timestamp: Date.now(),
+        //   playerList: [{userId: auth.currentUser.uid, username: auth.currentUser.displayName}],
+        // });
+        // const boardState = doc(database, 'Games', inputGameid.value, 'boardState').withConverter(boardStateConverter);
+        // setDoc(boardState, new BoardState());
+
+
+      // setDoc(newGame, {
+      //   gameid: inputGameid.value,
+      //   hostUserId: auth.currentUser.uid,
+      //   hostDisplayName: auth.currentUser.displayName,
+      //   timestamp: Date.now(),
+      //   playerList: [{userId: auth.currentUser.uid, username: auth.currentUser.displayName}],
+      // });
       localStorage.setItem("gameid", inputGameid.value);
       const newGameCreationMessage = document.createElement('p');
       newGameCreationMessage.textContent = "Created new game with gameid: '" + inputGameid.value + "'";
@@ -189,6 +209,20 @@ async function main()
   });
 }
 main();
+
+function initializeGame(database, auth, gameid, gameDoc)
+{
+  setDoc(gameDoc, {
+    gameid: gameid,
+    hostUserId: auth.currentUser.uid,
+    hostDisplayName: auth.currentUser.displayName,
+    timestamp: Date.now(),
+    playerList: [{userId: auth.currentUser.uid, username: auth.currentUser.displayName}],
+  });
+  const boardState = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
+  setDoc(boardState, new BoardState());
+
+}
 
 function subscribeGuestbook(database, guestbookListener) {
   const q = query(collection(database, 'guestbook'), orderBy('timestamp', 'desc'));
