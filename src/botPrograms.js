@@ -69,7 +69,7 @@ export class Program
     return "{ '" + this.name + "', " + this.value + "}";
   }
 
-  get newPosition(currentPosition)
+  calculateNewPosition(currentPosition)
   {
     const directions = ['north', 'east', 'south', 'west'];
     let updatedPosition = currentPosition;
