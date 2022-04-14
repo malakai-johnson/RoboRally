@@ -233,6 +233,17 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 
 /***/ }),
 
+/***/ "./src/boardState.js":
+/*!***************************!*\
+  !*** ./src/boardState.js ***!
+  \***************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"BoardState\": () => (/* binding */ BoardState),\n/* harmony export */   \"boardStateConverter\": () => (/* binding */ boardStateConverter),\n/* harmony export */   \"getBoardState\": () => (/* binding */ getBoardState)\n/* harmony export */ });\n/* harmony import */ var firebase_firestore__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! firebase/firestore */ \"./node_modules/firebase/firestore/dist/index.esm.js\");\n\r\n\r\nclass BoardState\r\n{\r\n  constructor (round = 0, player_0 = {x: 0, y: 0, direction: 'north'}, player_1 = null, player_2 = null, player_3 = null, player_4 = null, player_5 = null, player_6 = null, player_7 = null)\r\n  {\r\n    this.round = round;\r\n    this.player_0 = player_0;\r\n    this.player_1 = player_1;\r\n    this.player_2 = player_2;\r\n    this.player_3 = player_3;\r\n    this.player_4 = player_4;\r\n    this.player_5 = player_5;\r\n    this.player_6 = player_6;\r\n    this.player_7 = player_7;\r\n  }\r\n  toString()\r\n  {\r\n    let output = \"Round: \" + this.round + \"\\n\";\r\n    if(this.player_0)\r\n    {\r\n      output = output+ \"Player 0: \" + this.player_0 + \"\\n\";\r\n    }\r\n    if(this.player_1)\r\n    {\r\n      output = output+ \"Player 1: \" + this.player_1 + \"\\n\";\r\n    }\r\n    if(this.player_2)\r\n    {\r\n      output = output+ \"Player 2: \" + this.player_2 + \"\\n\";\r\n    }\r\n    if(this.player_3)\r\n    {\r\n      output = output+ \"Player 3: \" + this.player_3 + \"\\n\";\r\n    }\r\n    if(this.player_4)\r\n    {\r\n      output = output+ \"Player 4: \" + this.player_4 + \"\\n\";\r\n    }\r\n    if(this.player_5)\r\n    {\r\n      output = output+ \"Player 5: \" + this.player_5 + \"\\n\";\r\n    }\r\n    if(this.player_6)\r\n    {\r\n      output = output+ \"Player 6: \" + this.player_6 + \"\\n\";\r\n    }\r\n    if(this.player_7)\r\n    {\r\n      output = output+ \"Player 7: \" + this.player_7 + \"\\n\";\r\n    }\r\n    return output;\r\n  }\r\n}\r\n\r\nconst boardStateConverter = {\r\n  toFirestore: (boardState) => {\r\n    return {\r\n      round: boardState.round,\r\n      player_0: boardState.player_0,\r\n      player_1: boardState.player_1,\r\n      player_2: boardState.player_2,\r\n      player_3: boardState.player_3,\r\n      player_4: boardState.player_4,\r\n      player_5: boardState.player_5,\r\n      player_6: boardState.player_6,\r\n      player_7: boardState.player_7,\r\n    };\r\n  },\r\n  fromFirestore: (snapshot, options) =>\r\n  {\r\n    const data = snapshot.data(options);\r\n    return new BoardState(data.round, data.player_0, data.player_1, data.player_2, data.player_3, data.player_4, data.player_5, data.player_6, data.player_7)\r\n  }\r\n}\r\n\r\nasync function getBoardState(database, gameid)\r\n{\r\n  const boardStateRef = (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_0__.doc)(database, \"Games\", gameid, 'Board', 'boardState').withConverter(boardStateConverter);\r\n  const boardStateSnap = await (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_0__.getDoc)(boardStateRef);\r\n  if (boardStateSnap.exists())\r\n  {\r\n    return boardStateSnap.data();\r\n  }\r\n  else\r\n  {\r\n    console.log(\"No boardState!\");\r\n    return null;\r\n  }\r\n}\r\n\n\n//# sourceURL=webpack://roborally/./src/boardState.js?");
+
+/***/ }),
+
 /***/ "./src/firebaseConfig.js":
 /*!*******************************!*\
   !*** ./src/firebaseConfig.js ***!
@@ -303,7 +314,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/ 	
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -317,14 +328,14 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
-/******/ 	
+/******/
 /******/ 		// Execute the module function
 /******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/ 	
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/ 	
+/******/
 /************************************************************************/
 /******/ 	/* webpack/runtime/amd define */
 /******/ 	(() => {
@@ -332,7 +343,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 			throw new Error('define cannot be used indirect');
 /******/ 		};
 /******/ 	})();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/compat get default export */
 /******/ 	(() => {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
@@ -344,7 +355,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 			return getter;
 /******/ 		};
 /******/ 	})();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
 /******/ 		// define getter functions for harmony exports
@@ -356,7 +367,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 			}
 /******/ 		};
 /******/ 	})();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/global */
 /******/ 	(() => {
 /******/ 		__webpack_require__.g = (function() {
@@ -368,12 +379,12 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 			}
 /******/ 		})();
 /******/ 	})();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
 /******/ 	(() => {
 /******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
 /******/ 	})();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/make namespace object */
 /******/ 	(() => {
 /******/ 		// define __esModule on exports
@@ -384,13 +395,13 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 			Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 		};
 /******/ 	})();
-/******/ 	
+/******/
 /************************************************************************/
-/******/ 	
+/******/
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module can't be inlined because the eval devtool is used.
 /******/ 	var __webpack_exports__ = __webpack_require__("./src/host.js");
-/******/ 	
+/******/
 /******/ })()
 ;
