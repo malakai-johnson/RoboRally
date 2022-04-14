@@ -111,39 +111,15 @@ async function main()
   onAuthStateChanged(auth, (user) => {
     if (user) {
       startLoginButton.textContent = 'LOGOUT';
-      // Show guestbook to logged-in users
-      guestbookContainer.style.display = 'block';
+      // Show start game to logged-in users
       startgameContainer.style.display = 'block';
-      // Subscribe to the guestbook collection
-      subscribeGuestbook(database, guestbookListener);
     } else {
       startLoginButton.textContent = 'LOGIN';
-      // Hide guestbook for non-logged-in users
-      guestbookContainer.style.display = 'none';
+      // Hide start game for non-logged-in users
       startgameContainer.style.display = 'none';
-      // Unsubscribe from the guestbook collection
-      unsubscribeGuestbook(guestbookListener);
     }
   });
 
-  // Listen to the form submission
-  formMessage.addEventListener('submit', async (e) => {
-    // Prevent the default form redirect
-    e.preventDefault();
-    // Write a new message to the database collection "guestbook"
-
-    addDoc(collection(database, 'guestbook'), {
-      text: input.value,
-      timestamp: Date.now(),
-      name: auth.currentUser.displayName,
-      userId: auth.currentUser.uid,
-    });
-
-    // clear message input field
-    input.value = '';
-    // Return false to avoid redirect
-    return false;
-  });
 
   formStartgame.addEventListener('submit', async (e) => {
     // Prevent the default form redirect
@@ -189,25 +165,3 @@ async function main()
   });
 }
 main();
-
-function subscribeGuestbook(database, guestbookListener) {
-  const q = query(collection(database, 'guestbook'), orderBy('timestamp', 'desc'));
-  guestbookListener = onSnapshot(q, (snaps) => {
-    // Reset page
-    guestbook.innerHTML = '';
-    // Loop through documents in database
-    snaps.forEach((doc) => {
-      // Create an HTML entry for each document and add it to the chat
-      const entry = document.createElement('p');
-      entry.textContent = doc.data().name + ': ' + doc.data().text;
-      guestbook.appendChild(entry);
-    });
-  });
-}
-// Unsubscribe from guestbook updates
-function unsubscribeGuestbook(guestbookListener) {
-  if (guestbookListener != null) {
-    guestbookListener();
-    guestbookListener = null;
-  }
-}
