@@ -262,7 +262,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _firebaseConfig_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./firebaseConfig.js */ \"./src/firebaseConfig.js\");\n/* harmony import */ var _boardState_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./boardState.js */ \"./src/boardState.js\");\n/* harmony import */ var firebase_app__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! firebase/app */ \"./node_modules/firebase/app/dist/index.esm.js\");\n/* harmony import */ var firebase_auth__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! firebase/auth */ \"./node_modules/firebase/auth/dist/index.esm.js\");\n/* harmony import */ var firebase_firestore__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! firebase/firestore */ \"./node_modules/firebase/firestore/dist/index.esm.js\");\n/* harmony import */ var firebaseui__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! firebaseui */ \"./node_modules/firebaseui/dist/esm.js\");\n//This will be the script which manages the game logic and dispalys the board.\r\n\r\n\r\n\r\n\r\n// Firebase App (the core Firebase SDK) is always required\r\n\r\n\r\n// Add the Firebase products and methods that you want to use\r\n\r\n\r\n\r\n\r\n\r\n\r\nasync function main()\r\n{\r\n  const gameid = localStorage.getItem(\"gameid\");\r\n  if(gameid == null){\r\n    console.log(\"gameid undefined\");\r\n    location.href = '/login.html';\r\n  }\r\n\r\n  const app = (0,firebase_app__WEBPACK_IMPORTED_MODULE_2__.initializeApp)((0,_firebaseConfig_js__WEBPACK_IMPORTED_MODULE_0__.getFirebaseConfig)());\r\n  let auth = (0,firebase_auth__WEBPACK_IMPORTED_MODULE_3__.getAuth)();\r\n  let database = (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_4__.getFirestore)();\r\n\r\n  if (auth)\r\n  {\r\n    console.log('auth was created');\r\n  } else\r\n  {\r\n    console.log('auth was not created');\r\n  }\r\n\r\n  const gameDocRef = (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_4__.doc)(database, 'Games', gameid);\r\n  const gameDocSnap = await (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_4__.getDoc)(gameDocRef);\r\n  let isHost;\r\n\r\n  console.log(\"Game ID: \" + gameid);\r\n  const gameDetails = document.getElementById(\"game-details\");\r\n  const detailsGameID = document.createElement('p');\r\n  detailsGameID.textContent = \"Game ID: \" + gameid;\r\n  gameDetails.appendChild(detailsGameID);\r\n\r\n  const detailsHost = document.createElement('p');\r\n  if(gameDocSnap.data().hostUserId == auth.currentUser.uid){\r\n    detailsHost.textContent = \"You are the host\";\r\n    isHost = true;\r\n  }else {\r\n    detailsHost.textContent = \"You are NOT the host. The host is: \" + gameDocSnap.data().hostDisplayName;\r\n    isHost = false;\r\n  }\r\n  gameDetails.appendChild(detailsHost);\r\n\r\n  const gameboard = document.getElementById(\"board\");\r\n  const boardState = await (0,_boardState_js__WEBPACK_IMPORTED_MODULE_1__.getBoardState)(database, gameid);\r\n  let boardStateString = boardState.toString();\r\n  console.log(boardStateString)\r\n  gameboard.textContent = boardStateString;\r\n\r\n}\r\nmain();\r\n\n\n//# sourceURL=webpack://roborally/./src/host.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _firebaseConfig_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./firebaseConfig.js */ \"./src/firebaseConfig.js\");\n/* harmony import */ var firebase_app__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! firebase/app */ \"./node_modules/firebase/app/dist/index.esm.js\");\n/* harmony import */ var firebase_auth__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! firebase/auth */ \"./node_modules/firebase/auth/dist/index.esm.js\");\n/* harmony import */ var firebase_firestore__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! firebase/firestore */ \"./node_modules/firebase/firestore/dist/index.esm.js\");\n/* harmony import */ var firebaseui__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! firebaseui */ \"./node_modules/firebaseui/dist/esm.js\");\n//This will be the script which manages the game logic and dispalys the board.\r\n\r\n\r\n// Firebase App (the core Firebase SDK) is always required\r\n\r\n\r\n// Add the Firebase products and methods that you want to use\r\n\r\n\r\n\r\n\r\n\r\n\r\nasync function main()\r\n{\r\n  const gameid = localStorage.getItem(\"gameid\");\r\n  if(gameid == null){\r\n    console.log(\"gameid undefined\");\r\n    location.href = '/login.html';\r\n  }\r\n\r\n  const app = (0,firebase_app__WEBPACK_IMPORTED_MODULE_1__.initializeApp)((0,_firebaseConfig_js__WEBPACK_IMPORTED_MODULE_0__.getFirebaseConfig)());\r\n  let auth = (0,firebase_auth__WEBPACK_IMPORTED_MODULE_2__.getAuth)();\r\n  let database = (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_3__.getFirestore)();\r\n\r\n  if (auth)\r\n  {\r\n    console.log('auth was created');\r\n  } else\r\n  {\r\n    console.log('auth was not created');\r\n  }\r\n\r\n  const gameDocRef = (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_3__.doc)(database, 'Games', gameid);\r\n  const gameDocSnap = await (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_3__.getDoc)(gameDocRef);\r\n  let isHost;\r\n\r\n  console.log(\"Game ID: \" + gameid);\r\n  const gameDetails = document.getElementById(\"game-details\");\r\n  const detailsGameID = document.createElement('p');\r\n  detailsGameID.textContent = \"Game ID: \" + gameid;\r\n  gameDetails.appendChild(detailsGameID);\r\n\r\n  const detailsHost = document.createElement('p');\r\n  if(gameDocSnap.data().hostUserId == auth.currentUser.uid){\r\n    detailsHost.textContent = \"You are the host\";\r\n    isHost = true;\r\n  }else {\r\n    detailsHost.textContent = \"You are NOT the host. The host is: \" + gameDocSnap.data().hostDisplayName;\r\n    isHost = false;\r\n  }\r\n  gameDetails.appendChild(detailsHost);\r\n\r\n}\r\nmain();\r\n\n\n//# sourceURL=webpack://roborally/./src/host.js?");
 
 /***/ }),
 
@@ -314,7 +314,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/ 	
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -328,14 +328,14 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
-/******/ 	
+/******/
 /******/ 		// Execute the module function
 /******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/ 	
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/ 	
+/******/
 /************************************************************************/
 /******/ 	/* webpack/runtime/amd define */
 /******/ 	(() => {
@@ -343,7 +343,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 			throw new Error('define cannot be used indirect');
 /******/ 		};
 /******/ 	})();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/compat get default export */
 /******/ 	(() => {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
@@ -355,7 +355,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 			return getter;
 /******/ 		};
 /******/ 	})();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
 /******/ 		// define getter functions for harmony exports
@@ -367,7 +367,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 			}
 /******/ 		};
 /******/ 	})();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/global */
 /******/ 	(() => {
 /******/ 		__webpack_require__.g = (function() {
@@ -379,12 +379,12 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 			}
 /******/ 		})();
 /******/ 	})();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
 /******/ 	(() => {
 /******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
 /******/ 	})();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/make namespace object */
 /******/ 	(() => {
 /******/ 		// define __esModule on exports
@@ -395,13 +395,13 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 			Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 		};
 /******/ 	})();
-/******/ 	
+/******/
 /************************************************************************/
-/******/ 	
+/******/
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module can't be inlined because the eval devtool is used.
 /******/ 	var __webpack_exports__ = __webpack_require__("./src/host.js");
-/******/ 	
+/******/
 /******/ })()
 ;
