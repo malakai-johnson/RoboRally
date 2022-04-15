@@ -75,9 +75,24 @@ async function main()
 
   const gameboard = document.getElementById("board");
   const boardState = await getBoardState(database, gameid);
+
   let boardStateString = boardState.toString();
   console.log(boardStateString)
   gameboard.textContent = boardStateString;
 
 }
 main();
+
+function initializeGame(database, auth, gameid, gameDoc)
+{
+  setDoc(gameDoc, {
+    gameid: gameid,
+    hostUserId: auth.currentUser.uid,
+    hostDisplayName: auth.currentUser.displayName,
+    timestamp: Date.now(),
+    playerList: [{userId: auth.currentUser.uid, username: auth.currentUser.displayName}],
+  });
+  const boardState = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
+  setDoc(boardState, new BoardState());
+
+}
