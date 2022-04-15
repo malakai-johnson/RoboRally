@@ -27,6 +27,7 @@ export class BoardState
       output = output + "Player " + i + ": " + JSON.stringify(this.players[i]) + "\n";
     }
     return output;
+  }
 }
 
 export const boardStateConverter = {
