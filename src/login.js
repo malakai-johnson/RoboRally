@@ -133,7 +133,7 @@ async function main()
     // Write a new message to the database collection "guestbook"
 
     const newGame = doc(database, 'Games', inputGameid.value);
-    const newGameSnap = await getDoc(newGame);
+    let newGameSnap = await getDoc(newGame);
 
     if(newGameSnap.exists()){
       console.log("userId: " + auth.currentUser.uid);
@@ -151,32 +151,19 @@ async function main()
 
     }else {
       initializeGame(database, auth, inputGameid.value, newGame);
-
-        //
-        // setDoc(newGame, {
-        //   gameid: gameid.value,
-        //   hostUserId: auth.currentUser.uid,
-        //   hostDisplayName: auth.currentUser.displayName,
-        //   timestamp: Date.now(),
-        //   playerList: [{userId: auth.currentUser.uid, username: auth.currentUser.displayName}],
-        // });
-        // const boardState = doc(database, 'Games', inputGameid.value, 'boardState').withConverter(boardStateConverter);
-        // setDoc(boardState, new BoardState());
-
-
-      // setDoc(newGame, {
-      //   gameid: inputGameid.value,
-      //   hostUserId: auth.currentUser.uid,
-      //   hostDisplayName: auth.currentUser.displayName,
-      //   timestamp: Date.now(),
-      //   playerList: [{userId: auth.currentUser.uid, username: auth.currentUser.displayName}],
-      // });
       localStorage.setItem("gameid", inputGameid.value);
       const newGameCreationMessage = document.createElement('p');
-      newGameCreationMessage.textContent = "Created new game with gameid: '" + inputGameid.value + "'";
-      gameCreationMessages.appendChild(newGameCreationMessage);
 
-      location.href = '/host.html';
+      newGameSnap = await getDoc(newGame);
+      if(newGameSnap.exists()){
+        newGameCreationMessage.textContent = "Created new game with gameid: '" + inputGameid.value + "'";
+        gameCreationMessages.appendChild(newGameCreationMessage);
+        location.href = '/host.html';
+      }
+      else {
+          newGameCreationMessage.textContent = "Failed to create new game with gameid: '" + inputGameid.value + "'";
+          gameCreationMessages.appendChild(newGameCreationMessage);
+      }
     }
     // clear message input field
     inputGameid.value = '';
@@ -197,5 +184,9 @@ function initializeGame(database, auth, gameid, gameDoc)
   });
   const boardState = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
   setDoc(boardState, new BoardState());
+  const playersReady = doc(database, 'Games', gameid, 'Board', 'playersReady');
+  setDoc(playersReady, {
+    isReadyList: [false],
+  });
 
 }
