@@ -91,6 +91,11 @@ export class Program
     return "{ '" + this.name + "', " + this.value + "}";
   }
 
+  toFirestore()
+  {
+    return {name: this.name, value: this.value};
+  }
+
   calculateNewPosition(currentPosition)
   {
     const directions = ['north', 'east', 'south', 'west'];

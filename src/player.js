@@ -127,12 +127,12 @@ async function main()
       programUI.style.display = 'none';
       messageCenter.textContent = "Ready. Waiting on other Players.";
       console.log("Ready. Waiting on other Players.");
-      setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, true);
+      setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, true, player.queueToFirestore());
     }
     else {
       console.log("Player not ready.");
       programUI.style.display = 'block';
-      setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, false);
+      setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, false, player.queueToFirestore());
     }
   });
 
@@ -212,6 +212,15 @@ class Player
     }
   }
 
+  queueToFirestore()
+  {
+    const firestoreQueue = {};
+    this.programQueue.forEach((program, i) => {
+      firestoreQueue['phase-' + i] = program.toFirestore();
+    });
+    return firestoreQueue;
+  }
+
   readyUp()
   {
     if(this.isQueueFull())
@@ -233,14 +242,17 @@ class Player
 
 }
 
-function setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, isReady)
+function setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, isReady, playerProgramQueue = {})
 {
   if(playersReadyDocSnap.exists())
   {
     let readyList = playersReadyDocSnap.data().isReadyList;
+    let programQueues = playersReadyDocSnap.data().programQueues;
     readyList[playerNumber] = isReady;
+    programQueues[playerNumber] = playerProgramQueue;
     updateDoc(playersReadyDocRef, {
       isReadyList: readyList,
+      programQueues: programQueues,
     });
   }
 }
