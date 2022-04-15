@@ -112,6 +112,13 @@ async function main()
   readyButton.player = player;
   readyButton.addEventListener('click', readyButtonFunc, false);
 
+  const programQueueElement = document.getElementById('program-queue');
+
+  player.setQueueListener(function(){
+    console.log("Queue changed");
+    programQueueElement.textContent = player.queueString();
+  });
+
   player.setReadyListener(function(){
     console.log(player.toString());
     console.log("player.isReady: " + player.isReady);
@@ -120,12 +127,12 @@ async function main()
       programUI.style.display = 'none';
       messageCenter.textContent = "Ready. Waiting on other Players.";
       console.log("Ready. Waiting on other Players.");
-      setPlayerReady(playersReadyDocSnap, playerNumber, true);
+      setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, true);
     }
     else {
       console.log("Player not ready.");
       programUI.style.display = 'block';
-      setPlayerReady(playersReadyDocSnap, playerNumber, false);
+      setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, false);
     }
   });
 
@@ -144,25 +151,13 @@ function readyButtonFunc()
   this.player.readyUp();
 }
 
-function addProgramToQueue()
-{
-  console.log("Adding program to queue...")
-  if(this.programQueue.length < 5)
-  {
-    this.programQueue.push(this.program);
-    console.log("Program Queue: " + this.programQueue);
-  }
-  else {
-    console.log("Program Queue Full");
-  }
-}
-
 class Player
 {
   constructor (playerNumber, programQueue = new Array(), isReady = false)
   {
     this.playerNumber = playerNumber;
     this.programQueue = programQueue;
+    this.queueListener = function () {console.log("queueListener not set");};
     this.isReady = isReady;
     this.readyListener = function () {console.log("readyListener not set");};
   }
@@ -172,17 +167,36 @@ class Player
     return "Player " + this.playerNumber + ": {isReady:" + this.isReady + ", " + this.programQueue + ", isQueueFull: " + this.isQueueFull() + "}";
   }
 
+  queueString()
+  {
+    let output = "Program Queue:\n";
+    this.programQueue.forEach((program, i) => {
+      output = output + "Phase " + i + ": " + program + "\n";
+    });
+    if(this.isQueueFull())
+    {
+      output = output + "***Queue is Full.***"
+    }
+    return output;
+  }
+
   addProgramToQueue(program)
   {
     if(!this.isQueueFull())
     {
       console.log("Adding program to queue...")
       this.programQueue.push(program);
+      this.queueListener();
     }
     else {
       console.log("Program Queue Full");
     }
     console.log("Program Queue: " + this.programQueue + ", length: " + this.programQueue.length);
+  }
+
+  setQueueListener(newListener)
+  {
+    this.queueListener = newListener;
   }
 
   isQueueFull()
@@ -218,13 +232,13 @@ class Player
 
 }
 
-function setPlayerReady(playersReadyDoc, playerNumber, isReady)
+function setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, isReady)
 {
-  if(playersReadyDoc.exists())
+  if(playersReadyDocSnap.exists())
   {
-    let readyList = playersReadyDoc.data().isReadyList;
+    let readyList = playersReadyDocSnap.data().isReadyList;
     readyList[playerNumber] = isReady;
-    updateDoc(playersReadyDoc, {
+    updateDoc(playersReadyDocRef, {
       isReadyList: readyList,
     });
   }

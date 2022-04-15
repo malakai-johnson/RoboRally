@@ -251,7 +251,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"getFirebaseConfig\": () => (/* binding */ getFirebaseConfig)\n/* harmony export */ });\n\r\nfunction getFirebaseConfig()\r\n{\r\n  const firebaseConfig = {\r\n    apiKey: \"AIzaSyBUGUCAgJ_WfGlR9C6VrrDTpWn8bad_p8E\",\r\n    authDomain: \"robo-rally-online.firebaseapp.com\",\r\n    projectId: \"robo-rally-online\",\r\n    storageBucket: \"robo-rally-online.appspot.com\",\r\n    messagingSenderId: \"803532956058\",\r\n    appId: \"1:803532956058:web:30251f4ac39b81ca279a23\"\r\n  };\r\n\r\n  return firebaseConfig;\r\n}\r\n\n\n//# sourceURL=webpack://roborally/./src/firebaseConfig.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"getFirebaseConfig\": () => (/* binding */ getFirebaseConfig)\n/* harmony export */ });\n//This function obfuscates the firebaseConfig so this sensitive information is not published on GitHub\r\nfunction getFirebaseConfig()\r\n{\r\n\r\n  const firebaseConfig = {\r\n    apiKey: \"AIzaSyBUGUCAgJ_WfGlR9C6VrrDTpWn8bad_p8E\",\r\n    authDomain: \"robo-rally-online.firebaseapp.com\",\r\n    projectId: \"robo-rally-online\",\r\n    storageBucket: \"robo-rally-online.appspot.com\",\r\n    messagingSenderId: \"803532956058\",\r\n    appId: \"1:803532956058:web:30251f4ac39b81ca279a23\"\r\n  };\r\n\r\n  return firebaseConfig;\r\n}\r\n\n\n//# sourceURL=webpack://roborally/./src/firebaseConfig.js?");
 
 /***/ }),
 
