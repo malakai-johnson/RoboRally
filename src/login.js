@@ -187,6 +187,7 @@ function initializeGame(database, auth, gameid, gameDoc)
   const playersReady = doc(database, 'Games', gameid, 'Board', 'playersReady');
   setDoc(playersReady, {
     isReadyList: [false],
+    programQueues: new Array(),
   });
 
 }

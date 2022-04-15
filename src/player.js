@@ -65,8 +65,8 @@ async function main()
   const playersReadyDocRef = doc(database, 'Games', gameid, 'Board', 'playersReady');
   const playersReadyDocSnap = await getDoc(playersReadyDocRef);
 
-  const playerList = gameDocSnap.data().playerList;
-  console.log("Player List: " + JSON.stringify(playerList));
+  // const playerList = gameDocSnap.data().playerList;
+  // console.log("Player List: " + JSON.stringify(playerList));
 
   let playerNumber = gameDocSnap.data().playerList.findIndex(playerEntry => {
     return playerEntry.userId == auth.currentUser.uid;
@@ -88,25 +88,25 @@ async function main()
   const eventFeed = document.getElementById('event-feed');
   const messageCenter = document.getElementById('message-center');
 
-  const button = document.getElementById('button');
-
-  button.addEventListener("click", function(){
-    console.log("Clicked button.");
-  });
-
   const programQueue = new Array();
+  //
+  // const buttonMove1 = document.getElementById('program-0');
+  // const buttonRotateRight = document.getElementById('program-1');
+  //
+  //
+  // buttonMove1.program = new Program('move', 1);
+  // buttonMove1.player = player;
+  // buttonMove1.addEventListener("click", programButton, false);
+  //
+  // buttonRotateRight.program = new Program('rotate', 1);
+  // buttonRotateRight.player = player;
+  // buttonRotateRight.addEventListener("click", programButton, false);
 
-  const buttonMove1 = document.getElementById('move-1');
-  const buttonRotateRight = document.getElementById('rotate-right');
-
-
-  buttonMove1.program = new Program('move', 1);
-  buttonMove1.player = player;
-  buttonMove1.addEventListener("click", programButton, false);
-
-  buttonRotateRight.program = new Program('rotate', 1);
-  buttonRotateRight.player = player;
-  buttonRotateRight.addEventListener("click", programButton, false);
+  const buttonMove1 = newProgramButton('program-0', new Program('move', 1), player);
+  const buttonMove2 = newProgramButton('program-1', new Program('move', 2), player);
+  const buttonTurnLeft = newProgramButton('program-2', new Program('rotate', -1), player);
+  const buttonTurnRight = newProgramButton('program-3', new Program('rotate', 1), player);
+  const buttonUTurn = newProgramButton('program-4', new Program('rotate', 2), player);
 
   const readyButton = document.getElementById('ready-button');
   readyButton.player = player;
@@ -127,12 +127,12 @@ async function main()
       programUI.style.display = 'none';
       messageCenter.textContent = "Ready. Waiting on other Players.";
       console.log("Ready. Waiting on other Players.");
-      setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, true);
+      setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, true, player.queueToFirestore());
     }
     else {
       console.log("Player not ready.");
       programUI.style.display = 'block';
-      setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, false);
+      setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, false, player.queueToFirestore());
     }
   });
 
@@ -141,8 +141,9 @@ async function main()
 }
 main();
 
-function programButton()
+function programButtonFunc()
 {
+  console.log("Clicked " + this.id);
   this.player.addProgramToQueue(this.program);
 }
 
@@ -211,6 +212,15 @@ class Player
     }
   }
 
+  queueToFirestore()
+  {
+    const firestoreQueue = {};
+    this.programQueue.forEach((program, i) => {
+      firestoreQueue['phase-' + i] = program.toFirestore();
+    });
+    return firestoreQueue;
+  }
+
   readyUp()
   {
     if(this.isQueueFull())
@@ -232,14 +242,36 @@ class Player
 
 }
 
-function setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, isReady)
+function setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, isReady, playerProgramQueue = {})
 {
   if(playersReadyDocSnap.exists())
   {
     let readyList = playersReadyDocSnap.data().isReadyList;
+    let programQueues = playersReadyDocSnap.data().programQueues;
     readyList[playerNumber] = isReady;
+    programQueues[playerNumber] = playerProgramQueue;
     updateDoc(playersReadyDocRef, {
       isReadyList: readyList,
+      programQueues: programQueues,
     });
   }
+}
+
+function newProgramButton(buttonId, program, player)
+{
+  let programSection = document.getElementById('program-buttons');
+  let programButton = document.createElement('button');
+  if(programButton == null)
+  {
+    console.log("Unable to create program button " + buttonId);
+  }
+
+  programButton.id = buttonId;
+  programButton.program = program;
+  programButton.textContent = program.toString();
+  programButton.player = player;
+  programButton.addEventListener('click', programButtonFunc, false);
+
+  programSection.appendChild(programButton);
+  return programButton
 }

@@ -66,14 +66,41 @@ export class Program
 
   toString()
   {
+    switch(this.name)
+    {
+      case 'move':
+        return "Move " + this.value;
+      case 'rotate':
+          switch(this.value % 3)
+          {
+            case -1:
+              return "Rotate Left";
+            case 1:
+              return "Rotate Right";
+            case -2:
+            case 2:
+              return "U-Turn";
+            default:
+              return "Invalid turn";
+          }
+        default:
+          return "Invalid program";
+    }
+
+
     return "{ '" + this.name + "', " + this.value + "}";
+  }
+
+  toFirestore()
+  {
+    return {name: this.name, value: this.value};
   }
 
   calculateNewPosition(currentPosition)
   {
     const directions = ['north', 'east', 'south', 'west'];
     let updatedPosition = currentPosition;
-    switch(program.name)
+    switch(this.name)
     {
       case 'move':
         switch(currentPosition.direction)
