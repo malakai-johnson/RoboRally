@@ -1,3 +1,68 @@
+export function executeProgram(program, currentPosition)
+{
+  const directions = ['north', 'east', 'south', 'west'];
+  let updatedPosition = currentPosition;
+  switch(program.name)
+  {
+    case 'move':
+      switch(currentPosition.direction)
+      {
+        case 'north':
+          updatedPosition.y -= program.value;
+          break;
+        case 'south':
+          updatedPosition.y += program.value;
+          break;
+        case 'east':
+          updatedPosition.x += program.value;
+          break;
+        case 'west':
+          updatedPosition.x -= progam.value;
+          break;
+      }
+      break;
+    case 'rotate':
+      let newDirectionIndex = (directions.indexOf(currentPosition.direction) + program.value) % 4;
+      if(newDirectionIndex >= 0)
+      {
+        updatedPosition.direction = directions[newDirectionIndex];
+      }
+      else
+      {
+        updatedPosition.direction = directions[newDirectionIndex + 4];
+      }
+      break;
+    default:
+      console.log("Invalid program name");
+      break;
+  }
+  return updatedPosition;
+}
+
+export function programToString(program)
+{
+  switch(program.name)
+  {
+    case 'move':
+      return "Move " + program.value;
+    case 'rotate':
+        switch(program.value % 3)
+        {
+          case -1:
+            return "Rotate Left";
+          case 1:
+            return "Rotate Right";
+          case -2:
+          case 2:
+            return "U-Turn";
+          default:
+            return "Invalid turn";
+        }
+      default:
+        return "Invalid program";
+  }
+}
+
 
 export class ProgramRecord
 {
@@ -136,45 +201,4 @@ export class Program
     }
     return newPosition;
   }
-}
-
-export function executeProgram(program, currentPosition)
-{
-  const directions = ['north', 'east', 'south', 'west'];
-  let updatedPosition = currentPosition;
-  switch(program.name)
-  {
-    case 'move':
-      switch(currentPosition.direction)
-      {
-        case 'north':
-          updatedPosition.y -= program.value;
-          break;
-        case 'south':
-          updatedPosition.y += program.value;
-          break;
-        case 'east':
-          updatedPosition.x += program.value;
-          break;
-        case 'west':
-          updatedPosition.x -= progam.value;
-          break;
-      }
-      break;
-    case 'rotate':
-      let newDirectionIndex = (directions.indexOf(currentPosition.direction) + program.value) % 4;
-      if(newDirectionIndex >= 0)
-      {
-        updatedPosition.direction = directions[newDirectionIndex];
-      }
-      else
-      {
-        updatedPosition.direction = directions[newDirectionIndex + 4];
-      }
-      break;
-    default:
-      console.log("Invalid program name");
-      break;
-  }
-  return updatedPosition;
 }

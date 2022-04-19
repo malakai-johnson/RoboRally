@@ -24,12 +24,11 @@ export class BoardState
     // output = output + "Player 0: " + JSON.stringify(this.players[0]) + "\n";
     for(let i = 0; i < this.playerPositions.length; i++)
     {
-      output = output + "Player " + i + ": " + JSON.stringify(this.players[i]) + "\n";
+      output = output + "Player " + i + ": " + JSON.stringify(this.playerPositions[i]) + "\n";
     }
     return output;
   }
 
-  }
 }
 
 export const boardStateConverter = {
@@ -59,9 +58,4 @@ export async function getBoardState(database, gameid)
     console.log("No boardState!");
     return null;
   }
-}
-
-export async function saveBoardState(database, gameid, boardstate)
-{
-  
 }

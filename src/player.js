@@ -8,6 +8,7 @@ import {
 } from './boardState.js'
 
 import {
+  programToString,
   Program,
   ProgramRecord,
   programRecordConverter
@@ -124,6 +125,12 @@ async function main()
     }
   });
 
+  const onReadyChange = onSnapshot(playersReadyDocRef, (doc) => {
+    if(!doc.data().isReadyList[player.playerNumber])
+    {
+      player.readyDown();
+    }
+  });
 
   console.log("end main");
 }
@@ -160,7 +167,7 @@ class Player
   {
     let output = "Program Queue:\n";
     this.programQueue.forEach((program, i) => {
-      output = output + "Phase " + i + ": " + program + "\n";
+      output = output + "Phase " + i + ": " + programToString(program) + "\n";
     });
     if(this.isQueueFull())
     {
@@ -223,6 +230,13 @@ class Player
     this.readyListener();
   }
 
+  readyDown()
+  {
+    this.isReady = false;
+    console.log("New Round Begin");
+    this.readyListener();
+  }
+
   setReadyListener(newListener)
   {
     this.readyListener = newListener;
@@ -256,7 +270,7 @@ function newProgramButton(buttonId, program, player)
 
   programButton.id = buttonId;
   programButton.program = program;
-  programButton.textContent = program.toString();
+  programButton.textContent = programToString(program);
   programButton.player = player;
   programButton.addEventListener('click', programButtonFunc, false);
 

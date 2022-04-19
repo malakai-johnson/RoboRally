@@ -8,7 +8,8 @@ import {
 } from './boardState.js'
 
 import {
-  executeProgram
+  executeProgram,
+  programToString,
 } from './botPrograms.js'
 // Firebase App (the core Firebase SDK) is always required
 import { initializeApp } from 'firebase/app';
@@ -92,7 +93,7 @@ async function main()
 main();
 
 
-function displayGameBoard(database, gameid)
+async function displayGameBoard(database, gameid)
 {
     const gameboard = document.getElementById("board");
     const boardState = await getBoardState(database, gameid);
@@ -103,38 +104,47 @@ function displayGameBoard(database, gameid)
 
     const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState');
 
-    const onBoardStateChange = onSnapshot(boardStateDocRef.withConverter(boardStateConverter), (boardState) => {
-      let boardStateString = boardState.toString();
-      console.log(boardStateString)
-      gameboard.textContent = boardStateString;
+    const onBoardStateChange = onSnapshot(boardStateDocRef, (newBoardState) => {
+      newBoardState = boardStateConverter.fromFirestore(newBoardState);
+      console.log("updating boardState");
+      let newBoardStateString = newBoardState.toString();
+      console.log(newBoardStateString);
+      gameboard.textContent = newBoardStateString;
     });
 }
 
-function gameManagement(database, gameid)
+async function gameManagement(database, gameid)
 {
   const eventFeed = document.getElementById('event-feed');
 
   const numberOfPhases = 5;
   const playersReadyDocRef = doc(database, 'Games', gameid, 'Board', 'playersReady');
   const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
-  const onReadyChange = onSnapshot(playersReadyDocRef, (doc) => {
+  const onReadyChange = onSnapshot(playersReadyDocRef, async (doc) => {
     if(doc.data().isReadyList.every(Boolean))
     {
-      boardState = await getBoardState(database, gameid)
-      programQueues = doc.data().programQueues);
+      const boardState = await getBoardState(database, gameid);
+      const programQueues = doc.data().programQueues;
 
+      boardState.round++;
+      eventFeed.textContent = eventFeed.textContent + "Round " + boardState.round + "\n";
       for(let i = 0; i < numberOfPhases; i++)
       {
         let phaseSummary = '-Phase ' + i;
         programQueues.forEach((programQueue, j) => {
-          phaseSummary = phaseSummary + "--Player " + j + ": " + boardState.playerPositions[j] + " => ";
+          console.log("Player ", j, ": ", programToString(programQueue['phase-'+i]))
+          phaseSummary = phaseSummary + "--Player " + j + ": " + JSON.stringify(boardState.playerPositions[j]) + " => ";
           boardState.playerPositions[j] = executeProgram(programQueue['phase-'+i], boardState.playerPositions[j]);
-          phaseSummary = phaseSummary + boardState.playerPositions[j] + "\n"
+          phaseSummary = phaseSummary + JSON.stringify(boardState.playerPositions[j]) + "\n"
         });
         eventFeed.textContent = eventFeed.textContent + phaseSummary;//This will not display the event feed to other players
         setDoc(boardStateDocRef, boardState);
-
       }
+
+      let numberOfPlayers = boardState.playerPositions.length;
+      updateDoc(playersReadyDocRef, {
+        isReadyList: new Array(numberOfPlayers).fill(false)
+      });
     }
   });
 
