@@ -89,24 +89,12 @@ async function main()
   const messageCenter = document.getElementById('message-center');
 
   const programQueue = new Array();
-  //
-  // const buttonMove1 = document.getElementById('program-0');
-  // const buttonRotateRight = document.getElementById('program-1');
-  //
-  //
-  // buttonMove1.program = new Program('move', 1);
-  // buttonMove1.player = player;
-  // buttonMove1.addEventListener("click", programButton, false);
-  //
-  // buttonRotateRight.program = new Program('rotate', 1);
-  // buttonRotateRight.player = player;
-  // buttonRotateRight.addEventListener("click", programButton, false);
 
-  const buttonMove1 = newProgramButton('program-0', new Program('move', 1), player);
-  const buttonMove2 = newProgramButton('program-1', new Program('move', 2), player);
-  const buttonTurnLeft = newProgramButton('program-2', new Program('rotate', -1), player);
-  const buttonTurnRight = newProgramButton('program-3', new Program('rotate', 1), player);
-  const buttonUTurn = newProgramButton('program-4', new Program('rotate', 2), player);
+  const buttonMove1 = newProgramButton('program-0', {name: 'move', value: 1}, player);
+  const buttonMove2 = newProgramButton('program-1', {name: 'move', value: 2}, player);
+  const buttonTurnLeft = newProgramButton('program-2', {name: 'rotate', value: -1}, player);
+  const buttonTurnRight = newProgramButton('program-3', {name: 'rotate', value: 1}, player);
+  const buttonUTurn = newProgramButton('program-4', {name: 'rotate', value: 2}, player);
 
   const readyButton = document.getElementById('ready-button');
   readyButton.player = player;
@@ -216,7 +204,7 @@ class Player
   {
     const firestoreQueue = {};
     this.programQueue.forEach((program, i) => {
-      firestoreQueue['phase-' + i] = program.toFirestore();
+      firestoreQueue['phase-' + i] = program;
     });
     return firestoreQueue;
   }

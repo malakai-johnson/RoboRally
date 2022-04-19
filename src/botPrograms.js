@@ -138,7 +138,7 @@ export class Program
   }
 }
 
-export function programExecution(program, currentPosition)
+export function executeProgram(program, currentPosition)
 {
   const directions = ['north', 'east', 'south', 'west'];
   let updatedPosition = currentPosition;
@@ -176,4 +176,5 @@ export function programExecution(program, currentPosition)
       console.log("Invalid program name");
       break;
   }
+  return updatedPosition;
 }
