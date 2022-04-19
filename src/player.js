@@ -108,6 +108,14 @@ async function main()
   const buttonTurnRight = newProgramButton('program-3', new Program('rotate', 1), player);
   const buttonUTurn = newProgramButton('program-4', new Program('rotate', 2), player);
 
+  const undoButton = document.getElementById('undo-button');
+  undoButton.player = player;
+  undoButton.addEventListener('click', undoButtonFunc, false);
+
+  const clearButton = document.getElementById('clear-button');
+  clearButton.player = player;
+  clearButton.addEventListener('click', clearButtonFunc, false);
+
   const readyButton = document.getElementById('ready-button');
   readyButton.player = player;
   readyButton.addEventListener('click', readyButtonFunc, false);
@@ -143,8 +151,17 @@ main();
 
 function programButtonFunc()
 {
-  console.log("Clicked " + this.id);
   this.player.addProgramToQueue(this.program);
+}
+
+function undoButtonFunc()
+{
+  this.player.popQueue();
+}
+
+function clearButtonFunc()
+{
+  this.player.clearQueue();
 }
 
 function readyButtonFunc()
@@ -193,6 +210,20 @@ class Player
       console.log("Program Queue Full");
     }
     console.log("Program Queue: " + this.programQueue + ", length: " + this.programQueue.length);
+  }
+
+  popQueue()
+  {
+
+    let program = this.programQueue.pop();
+    this.queueListener();
+    return program;
+  }
+
+  clearQueue()
+  {
+    this.programQueue.length = 0;
+    this.queueListener();
   }
 
   setQueueListener(newListener)
