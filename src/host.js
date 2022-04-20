@@ -67,15 +67,7 @@ async function main()
   detailsGameID.textContent = "Game ID: " + gameid;
   gameDetails.appendChild(detailsGameID);
 
-  const detailsHost = document.createElement('p');
-  if(gameDocSnap.data().hostUserId == auth.currentUser.uid){
-    detailsHost.textContent = "You are the host";
-    isHost = true;
-  }else {
-    detailsHost.textContent = "You are NOT the host. The host is: " + gameDocSnap.data().hostDisplayName;
-    isHost = false;
-  }
-  gameDetails.appendChild(detailsHost);
+  displayIsHost(gameDocSnap.data().hostUserId, gameDocSnap.data().hostDisplayName, auth.currentUser.uid);
 
   displayGameBoard(database, gameid);
 
@@ -84,14 +76,21 @@ async function main()
     gameManagement(database, gameid);
   }
 
-  if(isHost)
-  {
-
-  }
-
 }
 main();
 
+function displayIsHost(hostId, hostDisplayName, currentUserId)
+{
+  const detailsHost = document.createElement('p');
+  if(hostId == currentUserId){
+    detailsHost.textContent = "You are the host";
+    isHost = true;
+  }else {
+    detailsHost.textContent = "You are NOT the host. The host is: " + hostDisplayName;
+    isHost = false;
+  }
+  gameDetails.appendChild(detailsHost);
+}
 
 async function displayGameBoard(database, gameid)
 {
@@ -130,10 +129,10 @@ async function gameManagement(database, gameid)
       eventFeed.textContent = eventFeed.textContent + "Round " + boardState.round + "\n";
       for(let i = 0; i < numberOfPhases; i++)
       {
-        let phaseSummary = '-Phase ' + i;
+        let phaseSummary = '-Phase ' + i + '\n';
         programQueues.forEach((programQueue, j) => {
           console.log("Player ", j, ": ", programToString(programQueue['phase-'+i]))
-          phaseSummary = phaseSummary + "--Player " + j + ": " + JSON.stringify(boardState.playerPositions[j]) + " => ";
+          phaseSummary = phaseSummary + "--Player " + j + ": " + JSON.stringify(boardState.playerPositions[j])+ " => " + programToString(programQueue['phase-'+i]) + " => ";
           boardState.playerPositions[j] = executeProgram(programQueue['phase-'+i], boardState.playerPositions[j]);
           phaseSummary = phaseSummary + JSON.stringify(boardState.playerPositions[j]) + "\n"
         });

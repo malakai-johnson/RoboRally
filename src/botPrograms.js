@@ -1,5 +1,6 @@
 export function executeProgram(program, currentPosition)
 {
+  // console.log("Executing: ", programToString(program));
   const directions = ['north', 'east', 'south', 'west'];
   let updatedPosition = currentPosition;
   switch(program.name)
@@ -17,7 +18,7 @@ export function executeProgram(program, currentPosition)
           updatedPosition.x += program.value;
           break;
         case 'west':
-          updatedPosition.x -= progam.value;
+          updatedPosition.x -= program.value;
           break;
       }
       break;

@@ -112,7 +112,7 @@ async function main()
   const programQueueElement = document.getElementById('program-queue');
 
   player.setQueueListener(function(){
-    console.log("Queue changed");
+    // console.log("Queue changed");
     programQueueElement.textContent = player.queueString();
   });
 
@@ -197,14 +197,14 @@ class Player
   {
     if(!this.isQueueFull())
     {
-      console.log("Adding program to queue...")
+      // console.log("Adding program to queue...")
       this.programQueue.push(program);
       this.queueListener();
     }
     else {
       console.log("Program Queue Full");
     }
-    console.log("Program Queue: " + this.programQueue + ", length: " + this.programQueue.length);
+    // console.log("Program Queue: " + this.programQueue + ", length: " + this.programQueue.length);
   }
 
   popQueue()
@@ -265,6 +265,7 @@ class Player
   {
     this.isReady = false;
     console.log("New Round Begin");
+    this.clearQueue();
     this.readyListener();
   }
 
