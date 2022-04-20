@@ -7,6 +7,10 @@ import {
   getBoardState
 } from './boardState.js'
 
+import {
+  executeProgram,
+  programToString,
+} from './botPrograms.js'
 // Firebase App (the core Firebase SDK) is always required
 import { initializeApp } from 'firebase/app';
 
@@ -63,25 +67,87 @@ async function main()
   detailsGameID.textContent = "Game ID: " + gameid;
   gameDetails.appendChild(detailsGameID);
 
-  const detailsHost = document.createElement('p');
-  if(gameDocSnap.data().hostUserId == auth.currentUser.uid){
-    detailsHost.textContent = "You are the host";
-    isHost = true;
-  }else {
-    detailsHost.textContent = "You are NOT the host. The host is: " + gameDocSnap.data().hostDisplayName;
-    isHost = false;
+  displayIsHost(gameDocSnap.data().hostUserId, gameDocSnap.data().hostDisplayName, auth.currentUser.uid);
+
+  displayGameBoard(database, gameid);
+
+  if(isHost)
+  {
+    gameManagement(database, gameid);
   }
-  gameDetails.appendChild(detailsHost);
-
-  const gameboard = document.getElementById("board");
-  const boardState = await getBoardState(database, gameid);
-
-  let boardStateString = boardState.toString();
-  console.log(boardStateString)
-  gameboard.textContent = boardStateString;
 
 }
 main();
+
+function displayIsHost(hostId, hostDisplayName, currentUserId)
+{
+  const detailsHost = document.createElement('p');
+  if(hostId == currentUserId){
+    detailsHost.textContent = "You are the host";
+    isHost = true;
+  }else {
+    detailsHost.textContent = "You are NOT the host. The host is: " + hostDisplayName;
+    isHost = false;
+  }
+  gameDetails.appendChild(detailsHost);
+}
+
+async function displayGameBoard(database, gameid)
+{
+    const gameboard = document.getElementById("board");
+    const boardState = await getBoardState(database, gameid);
+
+    let boardStateString = boardState.toString();
+    console.log(boardStateString)
+    gameboard.textContent = boardStateString;
+
+    const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState');
+
+    const onBoardStateChange = onSnapshot(boardStateDocRef, (newBoardState) => {
+      newBoardState = boardStateConverter.fromFirestore(newBoardState);
+      console.log("updating boardState");
+      let newBoardStateString = newBoardState.toString();
+      console.log(newBoardStateString);
+      gameboard.textContent = newBoardStateString;
+    });
+}
+
+async function gameManagement(database, gameid)
+{
+  const eventFeed = document.getElementById('event-feed');
+
+  const numberOfPhases = 5;
+  const playersReadyDocRef = doc(database, 'Games', gameid, 'Board', 'playersReady');
+  const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
+  const onReadyChange = onSnapshot(playersReadyDocRef, async (doc) => {
+    if(doc.data().isReadyList.every(Boolean))
+    {
+      const boardState = await getBoardState(database, gameid);
+      const programQueues = doc.data().programQueues;
+
+      boardState.round++;
+      eventFeed.textContent = eventFeed.textContent + "Round " + boardState.round + "\n";
+      for(let i = 0; i < numberOfPhases; i++)
+      {
+        let phaseSummary = '-Phase ' + i + '\n';
+        programQueues.forEach((programQueue, j) => {
+          console.log("Player ", j, ": ", programToString(programQueue['phase-'+i]))
+          phaseSummary = phaseSummary + "--Player " + j + ": " + JSON.stringify(boardState.playerPositions[j])+ " => " + programToString(programQueue['phase-'+i]) + " => ";
+          boardState.playerPositions[j] = executeProgram(programQueue['phase-'+i], boardState.playerPositions[j]);
+          phaseSummary = phaseSummary + JSON.stringify(boardState.playerPositions[j]) + "\n"
+        });
+        eventFeed.textContent = eventFeed.textContent + phaseSummary;//This will not display the event feed to other players
+        setDoc(boardStateDocRef, boardState);
+      }
+
+      let numberOfPlayers = boardState.playerPositions.length;
+      updateDoc(playersReadyDocRef, {
+        isReadyList: new Array(numberOfPlayers).fill(false)
+      });
+    }
+  });
+
+}
 
 function initializeGame(database, auth, gameid, gameDoc)
 {

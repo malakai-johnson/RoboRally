@@ -13,34 +13,35 @@ import {
 
 export class BoardState
 {
-  constructor (round = 0, players = new Array({x: 0, y: 0, direction: 'north'}))
+  constructor (round = 0, playerPositions = new Array({x: 0, y: 0, direction: 'north'}))
   {
     this.round = round;
-    this.players = players;
+    this.playerPositions = playerPositions;
   }
   toString()
   {
     let output = "Round: " + this.round + "\n";
     // output = output + "Player 0: " + JSON.stringify(this.players[0]) + "\n";
-    for(let i = 0; i < this.players.length; i++)
+    for(let i = 0; i < this.playerPositions.length; i++)
     {
-      output = output + "Player " + i + ": " + JSON.stringify(this.players[i]) + "\n";
+      output = output + "Player " + i + ": " + JSON.stringify(this.playerPositions[i]) + "\n";
     }
     return output;
   }
+
 }
 
 export const boardStateConverter = {
   toFirestore: (boardState) => {
     return {
       round: boardState.round,
-      players: boardState.players,
+      playerPositions: boardState.playerPositions,
     };
   },
   fromFirestore: (snapshot, options) =>
   {
     const data = snapshot.data(options);
-    return new BoardState(data.round, data.players);
+    return new BoardState(data.round, data.playerPositions);
   }
 }
 

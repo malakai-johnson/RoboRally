@@ -8,6 +8,7 @@ import {
 } from './boardState.js'
 
 import {
+  programToString,
   Program,
   ProgramRecord,
   programRecordConverter
@@ -89,24 +90,12 @@ async function main()
   const messageCenter = document.getElementById('message-center');
 
   const programQueue = new Array();
-  //
-  // const buttonMove1 = document.getElementById('program-0');
-  // const buttonRotateRight = document.getElementById('program-1');
-  //
-  //
-  // buttonMove1.program = new Program('move', 1);
-  // buttonMove1.player = player;
-  // buttonMove1.addEventListener("click", programButton, false);
-  //
-  // buttonRotateRight.program = new Program('rotate', 1);
-  // buttonRotateRight.player = player;
-  // buttonRotateRight.addEventListener("click", programButton, false);
 
-  const buttonMove1 = newProgramButton('program-0', new Program('move', 1), player);
-  const buttonMove2 = newProgramButton('program-1', new Program('move', 2), player);
-  const buttonTurnLeft = newProgramButton('program-2', new Program('rotate', -1), player);
-  const buttonTurnRight = newProgramButton('program-3', new Program('rotate', 1), player);
-  const buttonUTurn = newProgramButton('program-4', new Program('rotate', 2), player);
+  const buttonMove1 = newProgramButton('program-0', {name: 'move', value: 1}, player);
+  const buttonMove2 = newProgramButton('program-1', {name: 'move', value: 2}, player);
+  const buttonTurnLeft = newProgramButton('program-2', {name: 'rotate', value: -1}, player);
+  const buttonTurnRight = newProgramButton('program-3', {name: 'rotate', value: 1}, player);
+  const buttonUTurn = newProgramButton('program-4', {name: 'rotate', value: 2}, player);
 
   const undoButton = document.getElementById('undo-button');
   undoButton.player = player;
@@ -123,7 +112,7 @@ async function main()
   const programQueueElement = document.getElementById('program-queue');
 
   player.setQueueListener(function(){
-    console.log("Queue changed");
+    // console.log("Queue changed");
     programQueueElement.textContent = player.queueString();
   });
 
@@ -144,6 +133,12 @@ async function main()
     }
   });
 
+  const onReadyChange = onSnapshot(playersReadyDocRef, (doc) => {
+    if(!doc.data().isReadyList[player.playerNumber])
+    {
+      player.readyDown();
+    }
+  });
 
   console.log("end main");
 }
@@ -189,7 +184,7 @@ class Player
   {
     let output = "Program Queue:\n";
     this.programQueue.forEach((program, i) => {
-      output = output + "Phase " + i + ": " + program + "\n";
+      output = output + "Phase " + i + ": " + programToString(program) + "\n";
     });
     if(this.isQueueFull())
     {
@@ -202,14 +197,14 @@ class Player
   {
     if(!this.isQueueFull())
     {
-      console.log("Adding program to queue...")
+      // console.log("Adding program to queue...")
       this.programQueue.push(program);
       this.queueListener();
     }
     else {
       console.log("Program Queue Full");
     }
-    console.log("Program Queue: " + this.programQueue + ", length: " + this.programQueue.length);
+    // console.log("Program Queue: " + this.programQueue + ", length: " + this.programQueue.length);
   }
 
   popQueue()
@@ -247,7 +242,7 @@ class Player
   {
     const firestoreQueue = {};
     this.programQueue.forEach((program, i) => {
-      firestoreQueue['phase-' + i] = program.toFirestore();
+      firestoreQueue['phase-' + i] = program;
     });
     return firestoreQueue;
   }
@@ -263,6 +258,14 @@ class Player
     {
       console.log("Cannot ready, queue not full.");
     }
+    this.readyListener();
+  }
+
+  readyDown()
+  {
+    this.isReady = false;
+    console.log("New Round Begin");
+    this.clearQueue();
     this.readyListener();
   }
 
@@ -299,7 +302,7 @@ function newProgramButton(buttonId, program, player)
 
   programButton.id = buttonId;
   programButton.program = program;
-  programButton.textContent = program.toString();
+  programButton.textContent = programToString(program);
   programButton.player = player;
   programButton.addEventListener('click', programButtonFunc, false);
 
