@@ -28,6 +28,10 @@ export class BoardState
     }
     return output;
   }
+  addPlayer(playerNumber)
+  {
+    this.playerPositions[playerNumber] = {x: 0, y: 0, direction: 'north'};
+  }
 
 }
 

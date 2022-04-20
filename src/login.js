@@ -131,23 +131,41 @@ async function main()
     // Prevent the default form redirect
     e.preventDefault();
     // Write a new message to the database collection "guestbook"
-
+    const maxPlayerCount = 5;
     const newGame = doc(database, 'Games', inputGameid.value);
     let newGameSnap = await getDoc(newGame);
 
     if(newGameSnap.exists()){
       console.log("userId: " + auth.currentUser.uid);
       console.log("gameHostId: " + newGameSnap.data().hostUserId);
+
       if(auth.currentUser.uid == newGameSnap.data().hostUserId)
       {
-        console.log("You own this game, redirectiong...");
+        console.log("You own this game, redirecting...");
         localStorage.setItem("gameid", inputGameid.value);
         location.href = '/host.html';
       }
-      console.log("the gameid '" + inputGameid.value + "' is taken.");
-      const newGameCreationMessage = document.createElement('p');
-      newGameCreationMessage.textContent = "the gameid '" + inputGameid.value + "' is taken.";
-      gameCreationMessages.appendChild(newGameCreationMessage);
+      else if (newGameSnap.data().playerList.some(player => auth.currentUser.uid == player.userId))
+      {
+        console.log("You are in this game, redirecting...");
+        localStorage.setItem("gameid", inputGameid.value);
+        location.href = '/host.html';
+      }
+      else if (newGameSnap.data().playerList.length < maxPlayerCount)
+      {
+        joinGame(database, auth, inputGameid.value, newGame);
+        console.log("You have joined this game, redirecting...");
+        localStorage.setItem("gameid", inputGameid.value);
+        location.href = '/host.html';
+      }
+      else
+      {
+        console.log("The game with gameid '" + inputGameid.value + "' is full.");
+        const newGameCreationMessage = document.createElement('p');
+        newGameCreationMessage.textContent = "The game with gameid '" + inputGameid.value + "' is full.";
+        gameCreationMessages.appendChild(newGameCreationMessage);
+      }
+
 
     }else {
       initializeGame(database, auth, inputGameid.value, newGame);
@@ -189,5 +207,29 @@ function initializeGame(database, auth, gameid, gameDoc)
     isReadyList: [false],
     programQueues: new Array(),
   });
+}
 
+async function joinGame(database, auth, gameid, gameDoc)
+{
+  const gameDocSnap = await getDoc(gameDoc);
+  const newPlayerList = gameDocSnap.data().playerList;
+
+  const playerNumber = newPlayerList.push({userId: auth.currentUser.uid, username: auth.currentUser.displayName}) -1;
+  updateDoc(gameDoc, {
+    playerList: newPlayerList,
+  });
+
+  const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
+  const boardStateSnap = await getDoc(boardStateDocRef);
+  const boardState = boardStateSnap.data();
+  boardState.addPlayer(playerNumber);
+  setDoc(boardStateDocRef, boardState);
+
+  const playersReadyDocRef = doc(database, 'Games', gameid, 'Board', 'playersReady');
+  const playersReadyDocSnap = await getDoc(playersReadyDocRef);
+  const newIsReadyList = playersReadyDocSnap.data().isReadyList;
+  newIsReadyList[playerNumber] = false;
+  updateDoc(playersReadyDocRef, {
+    isReadyList: newIsReadyList,
+  });
 }

@@ -67,7 +67,7 @@ async function main()
   detailsGameID.textContent = "Game ID: " + gameid;
   gameDetails.appendChild(detailsGameID);
 
-  displayIsHost(gameDocSnap.data().hostUserId, gameDocSnap.data().hostDisplayName, auth.currentUser.uid);
+  isHost = displayIsHost(gameDocSnap.data().hostUserId, gameDocSnap.data().hostDisplayName, auth.currentUser.uid);
 
   displayGameBoard(database, gameid);
 
@@ -84,10 +84,10 @@ function displayIsHost(hostId, hostDisplayName, currentUserId)
   const detailsHost = document.createElement('p');
   if(hostId == currentUserId){
     detailsHost.textContent = "You are the host";
-    isHost = true;
+    return true;
   }else {
     detailsHost.textContent = "You are NOT the host. The host is: " + hostDisplayName;
-    isHost = false;
+    return false;
   }
   gameDetails.appendChild(detailsHost);
 }
