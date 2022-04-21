@@ -7,10 +7,6 @@ import {
   getBoardState
 } from './boardState.js'
 
-import {
-  executeProgram,
-  programToString,
-} from './botPrograms.js'
 // Firebase App (the core Firebase SDK) is always required
 import { initializeApp } from 'firebase/app';
 
@@ -125,25 +121,28 @@ async function gameManagement(database, gameid)
       const boardState = await getBoardState(database, gameid);
       const programQueues = doc.data().programQueues;
 
-      boardState.round++;
-      eventFeed.textContent = eventFeed.textContent + "Round " + boardState.round + "\n";
-      for(let i = 0; i < numberOfPhases; i++)
+      // boardState.round++;
+      // eventFeed.textContent = eventFeed.textContent + "Round " + boardState.round + "\n";
+      // for(let i = 0; i < numberOfPhases; i++)
+      // {
+      //   let phaseSummary = '-Phase ' + i + '\n';
+      //   programQueues.forEach((programQueue, j) => {
+      //     console.log("Player ", j, ": ", programToString(programQueue['phase-'+i]))
+      //     phaseSummary = phaseSummary + "--Player " + j + ": " + JSON.stringify(boardState.playerPositions[j])+ " => " + programToString(programQueue['phase-'+i]) + " => ";
+      //     boardState.playerPositions[j] = executeProgram(programQueue['phase-'+i], boardState.playerPositions[j]);
+      //     phaseSummary = phaseSummary + JSON.stringify(boardState.playerPositions[j]) + "\n"
+      //   });
+      //   eventFeed.textContent = eventFeed.textContent + phaseSummary;//This will not display the event feed to other players
+      //   setDoc(boardStateDocRef, boardState);
+      // }
+      boardState.executeProgramQueues(programQueues);
+      if(boardState.winner == null)
       {
-        let phaseSummary = '-Phase ' + i + '\n';
-        programQueues.forEach((programQueue, j) => {
-          console.log("Player ", j, ": ", programToString(programQueue['phase-'+i]))
-          phaseSummary = phaseSummary + "--Player " + j + ": " + JSON.stringify(boardState.playerPositions[j])+ " => " + programToString(programQueue['phase-'+i]) + " => ";
-          boardState.playerPositions[j] = executeProgram(programQueue['phase-'+i], boardState.playerPositions[j]);
-          phaseSummary = phaseSummary + JSON.stringify(boardState.playerPositions[j]) + "\n"
+        let numberOfPlayers = boardState.playerPositions.length;
+        updateDoc(playersReadyDocRef, {
+          isReadyList: new Array(numberOfPlayers).fill(false)
         });
-        eventFeed.textContent = eventFeed.textContent + phaseSummary;//This will not display the event feed to other players
-        setDoc(boardStateDocRef, boardState);
       }
-
-      let numberOfPlayers = boardState.playerPositions.length;
-      updateDoc(playersReadyDocRef, {
-        isReadyList: new Array(numberOfPlayers).fill(false)
-      });
     }
   });
 
