@@ -7,10 +7,6 @@ import {
   getBoardState
 } from './boardState.js'
 
-import {
-  executeProgram,
-  programToString,
-} from './botPrograms.js'
 // Firebase App (the core Firebase SDK) is always required
 import { initializeApp } from 'firebase/app';
 
@@ -67,19 +63,35 @@ async function main()
   detailsGameID.textContent = "Game ID: " + gameid;
   gameDetails.appendChild(detailsGameID);
 
-  isHost = displayIsHost(gameDocSnap.data().hostUserId, gameDocSnap.data().hostDisplayName, auth.currentUser.uid);
+  isHost = displayIsHost(gameDetails, gameDocSnap.data().hostUserId, gameDocSnap.data().hostDisplayName, auth.currentUser.uid);
 
-  displayGameBoard(database, gameid);
+  const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
+  // let boardState = getBoardState(database, gameid);
+  const boardStateDocSnap = await getDoc(boardStateDocRef);
+  let boardState = boardStateDocSnap.data();
+  displayGameBoard(boardState);
 
   if(isHost)
   {
-    gameManagement(database, gameid);
+    boardState.onBoardStateChange(function() {
+      console.log("Updating boardStateDoc")
+      setDoc(boardStateDocRef, boardState);
+      displayGameBoard(boardState);
+    });
+    gameManagement(database, gameid, boardState);
+  }
+  else
+  {
+    const onBoardStateDocChange = onSnapshot(boardStateDocRef, (newBoardState) => {
+      boardState = newBoardState.data();
+      displayGameBoard(boardState);
+    });
   }
 
 }
 main();
 
-function displayIsHost(hostId, hostDisplayName, currentUserId)
+function displayIsHost(gameDetails, hostId, hostDisplayName, currentUserId)
 {
   const detailsHost = document.createElement('p');
   if(hostId == currentUserId){
@@ -92,73 +104,34 @@ function displayIsHost(hostId, hostDisplayName, currentUserId)
   gameDetails.appendChild(detailsHost);
 }
 
-async function displayGameBoard(database, gameid)
+async function displayGameBoard(boardState)
 {
     const gameboard = document.getElementById("board");
-    const boardState = await getBoardState(database, gameid);
+    console.log(boardState.toString())
+    gameboard.textContent = boardState.toString();
 
-    let boardStateString = boardState.toString();
-    console.log(boardStateString)
-    gameboard.textContent = boardStateString;
-
-    const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState');
-
-    const onBoardStateChange = onSnapshot(boardStateDocRef, (newBoardState) => {
-      newBoardState = boardStateConverter.fromFirestore(newBoardState);
-      console.log("updating boardState");
-      let newBoardStateString = newBoardState.toString();
-      console.log(newBoardStateString);
-      gameboard.textContent = newBoardStateString;
-    });
+    const eventFeed = document.getElementById('event-feed');
+    eventFeed.textContent = boardState.printHistory();
 }
 
-async function gameManagement(database, gameid)
+async function gameManagement(database, gameid, boardState)
 {
-  const eventFeed = document.getElementById('event-feed');
-
-  const numberOfPhases = 5;
   const playersReadyDocRef = doc(database, 'Games', gameid, 'Board', 'playersReady');
-  const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
   const onReadyChange = onSnapshot(playersReadyDocRef, async (doc) => {
     if(doc.data().isReadyList.every(Boolean))
     {
-      const boardState = await getBoardState(database, gameid);
+      console.log("Everyone is ready, executing programs...");
       const programQueues = doc.data().programQueues;
 
-      boardState.round++;
-      eventFeed.textContent = eventFeed.textContent + "Round " + boardState.round + "\n";
-      for(let i = 0; i < numberOfPhases; i++)
-      {
-        let phaseSummary = '-Phase ' + i + '\n';
-        programQueues.forEach((programQueue, j) => {
-          console.log("Player ", j, ": ", programToString(programQueue['phase-'+i]))
-          phaseSummary = phaseSummary + "--Player " + j + ": " + JSON.stringify(boardState.playerPositions[j])+ " => " + programToString(programQueue['phase-'+i]) + " => ";
-          boardState.playerPositions[j] = executeProgram(programQueue['phase-'+i], boardState.playerPositions[j]);
-          phaseSummary = phaseSummary + JSON.stringify(boardState.playerPositions[j]) + "\n"
+      boardState.executeProgramQueues(programQueues);
+      if(boardState.winner == null)
+      {//if no one has won
+        let numberOfPlayers = boardState.players.length;
+        updateDoc(playersReadyDocRef, {
+          isReadyList: new Array(numberOfPlayers).fill(false)
         });
-        eventFeed.textContent = eventFeed.textContent + phaseSummary;//This will not display the event feed to other players
-        setDoc(boardStateDocRef, boardState);
       }
-
-      let numberOfPlayers = boardState.playerPositions.length;
-      updateDoc(playersReadyDocRef, {
-        isReadyList: new Array(numberOfPlayers).fill(false)
-      });
     }
   });
-
-}
-
-function initializeGame(database, auth, gameid, gameDoc)
-{
-  setDoc(gameDoc, {
-    gameid: gameid,
-    hostUserId: auth.currentUser.uid,
-    hostDisplayName: auth.currentUser.displayName,
-    timestamp: Date.now(),
-    playerList: [{userId: auth.currentUser.uid, username: auth.currentUser.displayName}],
-  });
-  const boardState = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
-  setDoc(boardState, new BoardState());
 
 }
