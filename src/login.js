@@ -143,20 +143,20 @@ async function main()
       {
         console.log("You own this game, redirecting...");
         localStorage.setItem("gameid", inputGameid.value);
-        location.href = '/host.html';
+        location.href = '/play.html';
       }
       else if (newGameSnap.data().playerList.some(player => auth.currentUser.uid == player.userId))
       {
         console.log("You are in this game, redirecting...");
         localStorage.setItem("gameid", inputGameid.value);
-        location.href = '/host.html';
+        location.href = '/play.html';
       }
       else if (newGameSnap.data().playerList.length < maxPlayerCount)
       {
         joinGame(database, auth, inputGameid.value, newGame);
         console.log("You have joined this game, redirecting...");
         localStorage.setItem("gameid", inputGameid.value);
-        location.href = '/host.html';
+        location.href = '/play.html';
       }
       else
       {
@@ -176,7 +176,7 @@ async function main()
       if(newGameSnap.exists()){
         newGameCreationMessage.textContent = "Created new game with gameid: '" + inputGameid.value + "'";
         gameCreationMessages.appendChild(newGameCreationMessage);
-        location.href = '/host.html';
+        location.href = '/play.html';
       }
       else {
           newGameCreationMessage.textContent = "Failed to create new game with gameid: '" + inputGameid.value + "'";

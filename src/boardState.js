@@ -11,10 +11,10 @@ import {
   onSnapshot,
 } from 'firebase/firestore';
 
-import {
-  executeProgram,
-  programToString,
-} from './botPrograms.js'
+// import {
+//   executeProgram,
+//   programToString,
+// } from './botPrograms.js'
 
 export class BoardState
 {
@@ -35,7 +35,7 @@ export class BoardState
     let output = '\n';
     if(this.winner != null)
     {
-      output = "PLAYER " +  this.winner + " WINS!";
+      output = "PLAYER " + this.winner + " WINS!\n";
     }
     output = output + "NOTE: north = -y, south = +y, east = +x, west = -x\ni.e. (0,0) is north west corner\n";
     output = output + "Round: " + this.round + "\n";
@@ -80,6 +80,72 @@ export class BoardState
     return "( " + goal.x + ", " + goal.y + " )";
   }
 
+  programToString(program)
+  {
+    switch(program.name)
+    {
+      case 'move':
+        return "Move " + program.value;
+      case 'rotate':
+          switch(program.value % 3)
+          {
+            case -1:
+              return "Rotate Left";
+            case 1:
+              return "Rotate Right";
+            case -2:
+            case 2:
+              return "U-Turn";
+            default:
+              return "Invalid turn";
+          }
+        default:
+          return "Invalid program";
+    }
+  }
+
+  executeProgram(program, playerNumber)
+  {
+    // console.log("Executing: ", this.programToString(program), "For Player ", playerNumber, ": ")
+    // console.log(this.playerToString(this.players[playerNumber]));
+    const directions = ['north', 'east', 'south', 'west'];
+    // let updatedPosition = currentPosition;
+    switch(program.name)
+    {
+      case 'move':
+        switch(this.players[playerNumber].direction)
+        {
+          case 'north':
+            this.players[playerNumber].y -= program.value;
+            break;
+          case 'south':
+            this.players[playerNumber].y += program.value;
+            break;
+          case 'east':
+            this.players[playerNumber].x += program.value;
+            break;
+          case 'west':
+            this.players[playerNumber].x -= program.value;
+            break;
+        }
+        break;
+      case 'rotate':
+        let newDirectionIndex = (directions.indexOf(this.players[playerNumber].direction) + program.value) % 4;
+        if(newDirectionIndex >= 0)
+        {
+          this.players[playerNumber].direction = directions[newDirectionIndex];
+        }
+        else
+        {
+          this.players[playerNumber].direction = directions[newDirectionIndex + 4];
+        }
+        break;
+      default:
+        console.log("Invalid program name");
+        break;
+    }
+  }
+
   executeProgramQueues(programQueues)
   {
     this.round++;
@@ -91,8 +157,8 @@ export class BoardState
       programQueues.forEach((programQueue, j) => {
         // console.log("Player ", j, ": ", programToString(programQueue['phase-'+i]))
         let nextGoal = this.players[j].nextGoal;
-        phaseSummary = phaseSummary + "--Player " + j + ": " + this.playerToString(this.players[j])+ " => " + programToString(programQueue['phase-'+i]) + " => ";
-        this.players[j] = executeProgram(programQueue['phase-'+i], this.players[j]);
+        phaseSummary = phaseSummary + "--Player " + j + ": " + this.playerToString(this.players[j]) + " => " + programToString(programQueue['phase-'+i]) + " => ";
+        this.executeProgram(programQueue['phase-'+i], j);
         phaseSummary = phaseSummary + this.playerToString(this.players[j]) + '\n';
         if (nextGoal < this.players[j].nextGoal)
         {
@@ -170,20 +236,26 @@ export const boardStateConverter = {
   }
 }
 
-export async function getBoardState(database, gameid)
+export function programToString(program)
 {
-  const boardStateRef = doc(database, "Games", gameid, 'Board', 'boardState').withConverter(boardStateConverter);
-  const boardStateSnap = await getDoc(boardStateRef);
-  if (boardStateSnap.exists())
+  switch(program.name)
   {
-    const boardState = boardStateSnap.data();
-    console.log("Loading boardState:");
-    console.log(boardState.toString());
-    return boardState;
-  }
-  else
-  {
-    console.log("No boardState!");
-    return null;
+    case 'move':
+      return "Move " + program.value;
+    case 'rotate':
+        switch(program.value % 3)
+        {
+          case -1:
+            return "Rotate Left";
+          case 1:
+            return "Rotate Right";
+          case -2:
+          case 2:
+            return "U-Turn";
+          default:
+            return "Invalid turn";
+        }
+      default:
+        return "Invalid program";
   }
 }

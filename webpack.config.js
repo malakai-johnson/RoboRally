@@ -9,6 +9,7 @@ module.exports = {
     login: './src/login.js',
     host: './src/host.js',
     player: './src/player.js',
+    play: './src/play.js',
   },
   output: {
     filename: '[name].js',
@@ -35,9 +36,9 @@ module.exports = {
       chunks: ['login']
     }),
     new HtmlWebpackPlugin({
-      filename: 'host.html',
-      template: 'src/host.html',
-      chunks: ['host', 'player']
+      filename: 'play.html',
+      template: 'src/play.html',
+      chunks: ['play']
     }),
     new HtmlWebpackPlugin({
       filename: '404.html',

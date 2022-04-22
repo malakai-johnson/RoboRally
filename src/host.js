@@ -4,7 +4,7 @@ import { getFirebaseConfig } from './firebaseConfig.js'
 import {
   BoardState,
   boardStateConverter,
-  getBoardState
+  programToString,
 } from './boardState.js'
 
 // Firebase App (the core Firebase SDK) is always required
@@ -33,88 +33,80 @@ import {
 
 import * as firebaseui from 'firebaseui';
 
-async function main()
-{
-  const gameid = localStorage.getItem("gameid");
-  if(gameid == null){
-    console.log("gameid undefined");
-    location.href = '/login.html';
-  }
+// async function main()
+// {
+//   const gameid = localStorage.getItem("gameid");
+//   if(gameid == null){
+//     console.log("gameid undefined");
+//     location.href = '/login.html';
+//   }
+//
+//   const app = initializeApp(getFirebaseConfig());
+//   let auth = getAuth();
+//   let database = getFirestore();
+//
+//   if (auth)
+//   {
+//     console.log('auth was created');
+//   } else
+//   {
+//     console.log('auth was not created');
+//   }
+//
+//   const gameDocRef = doc(database, 'Games', gameid);
+//   const gameDocSnap = await getDoc(gameDocRef);
+//   let isHost;
+//
+//   console.log("Game ID: " + gameid);
+//   const gameDetails = document.getElementById("game-details");
+//   const detailsGameID = document.createElement('p');
+//   detailsGameID.textContent = "Game ID: " + gameid;
+//   gameDetails.appendChild(detailsGameID);
+//
+//   isHost = displayIsHost(gameDetails, gameDocSnap.data().hostUserId, gameDocSnap.data().hostDisplayName, auth.currentUser.uid);
+//
+//   // const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
+//   // const boardStateDocSnap = await getDoc(boardStateDocRef);
+//   // let boardState = boardStateDocSnap.data();
+//   // displayGameBoard(boardState);
+//
+//
+//
+// }
+// main();
 
-  const app = initializeApp(getFirebaseConfig());
-  let auth = getAuth();
-  let database = getFirestore();
+// export function checkIsHost(gameDetails, hostId, hostDisplayName, currentUserId, boardState)
+// {
+//   let isHost = false;
+//   const detailsHost = document.createElement('p');
+//   if(hostId == currentUserId){
+//     detailsHost.textContent = "You are the host";
+//     isHost = true;
+//   }else {
+//     detailsHost.textContent = "You are NOT the host. The host is: " + hostDisplayName;
+//     isHost = false;
+//   }
+//   gameDetails.appendChild(detailsHost);
+//
+//   if(isHost)
+//   {
+//     boardState.onBoardStateChange(function() {
+//       console.log("Updating boardStateDoc")
+//       setDoc(boardStateDocRef, boardState);
+//       displayGameBoard(boardState);
+//     });
+//     gameManagement(database, gameid, boardState);
+//   }
+//   else
+//   {
+//     const onBoardStateDocChange = onSnapshot(boardStateDocRef, (newBoardState) => {
+//       boardState = newBoardState.data();
+//       displayGameBoard(boardState);
+//     });
+//   }
+// }
 
-  if (auth)
-  {
-    console.log('auth was created');
-  } else
-  {
-    console.log('auth was not created');
-  }
-
-  const gameDocRef = doc(database, 'Games', gameid);
-  const gameDocSnap = await getDoc(gameDocRef);
-  let isHost;
-
-  console.log("Game ID: " + gameid);
-  const gameDetails = document.getElementById("game-details");
-  const detailsGameID = document.createElement('p');
-  detailsGameID.textContent = "Game ID: " + gameid;
-  gameDetails.appendChild(detailsGameID);
-
-  isHost = displayIsHost(gameDetails, gameDocSnap.data().hostUserId, gameDocSnap.data().hostDisplayName, auth.currentUser.uid);
-
-  const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
-  // let boardState = getBoardState(database, gameid);
-  const boardStateDocSnap = await getDoc(boardStateDocRef);
-  let boardState = boardStateDocSnap.data();
-  displayGameBoard(boardState);
-
-  if(isHost)
-  {
-    boardState.onBoardStateChange(function() {
-      console.log("Updating boardStateDoc")
-      setDoc(boardStateDocRef, boardState);
-      displayGameBoard(boardState);
-    });
-    gameManagement(database, gameid, boardState);
-  }
-  else
-  {
-    const onBoardStateDocChange = onSnapshot(boardStateDocRef, (newBoardState) => {
-      boardState = newBoardState.data();
-      displayGameBoard(boardState);
-    });
-  }
-
-}
-main();
-
-function displayIsHost(gameDetails, hostId, hostDisplayName, currentUserId)
-{
-  const detailsHost = document.createElement('p');
-  if(hostId == currentUserId){
-    detailsHost.textContent = "You are the host";
-    return true;
-  }else {
-    detailsHost.textContent = "You are NOT the host. The host is: " + hostDisplayName;
-    return false;
-  }
-  gameDetails.appendChild(detailsHost);
-}
-
-async function displayGameBoard(boardState)
-{
-    const gameboard = document.getElementById("board");
-    console.log(boardState.toString())
-    gameboard.textContent = boardState.toString();
-
-    const eventFeed = document.getElementById('event-feed');
-    eventFeed.textContent = boardState.printHistory();
-}
-
-async function gameManagement(database, gameid, boardState)
+export async function gameManagement(database, gameid, boardState)
 {
   const playersReadyDocRef = doc(database, 'Games', gameid, 'Board', 'playersReady');
   const onReadyChange = onSnapshot(playersReadyDocRef, async (doc) => {
