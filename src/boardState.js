@@ -32,12 +32,12 @@ export class BoardState
 
   toString()
   {
-    let output = '';
+    let output = '\n';
     if(this.winner != null)
     {
-      output = "PLAYER " this.winner + " WINS!";
+      output = "PLAYER " +  this.winner + " WINS!";
     }
-    output = output + "NOTE: (0,0) is upper left\n";
+    output = output + "NOTE: north = -y, south = +y, east = +x, west = -x\ni.e. (0,0) is north west corner\n";
     output = output + "Round: " + this.round + "\n";
     output = output + "-Goals:\n"
     for (let i = 0; i < this.goals.length; i++)
@@ -49,7 +49,7 @@ export class BoardState
     {
       output = output + "--Player " + i + ": " + this.playerToString(this.players[i]) + "\n";
     }
-    return output;
+    return output + '\n';
   }
 
   printHistory()
@@ -68,6 +68,10 @@ export class BoardState
 
   playerToString(player)
   {
+    if(player.nextGoal == this.goals.length)
+    {
+      return "Position: ( " + player.x + ", " + player.y + ", " + player.direction + " ), WINNER!";
+    }
     return "Position: ( " + player.x + ", " + player.y + ", " + player.direction + " ), Next Goal: " + player.nextGoal;
   }
 
@@ -86,9 +90,14 @@ export class BoardState
       let phaseSummary = '-Phase ' + i + '\n';
       programQueues.forEach((programQueue, j) => {
         // console.log("Player ", j, ": ", programToString(programQueue['phase-'+i]))
+        let nextGoal = this.players[j].nextGoal;
         phaseSummary = phaseSummary + "--Player " + j + ": " + this.playerToString(this.players[j])+ " => " + programToString(programQueue['phase-'+i]) + " => ";
         this.players[j] = executeProgram(programQueue['phase-'+i], this.players[j]);
         phaseSummary = phaseSummary + this.playerToString(this.players[j]) + '\n';
+        if (nextGoal < this.players[j].nextGoal)
+        {
+          phaseSummary = phaseSummary + "Player " + j + " Reached Goal " + nextGoal + "!\n";
+        }
       });
       console.log(phaseSummary);
       this.history.push(phaseSummary);
@@ -96,7 +105,7 @@ export class BoardState
       {
         console.log("Player " + this.winner + " Wins!");
         this.history.push("Player " + this.winner + " Wins!");
-        break;
+        // break;
       }
       this.boardStateListener();
     }
@@ -104,26 +113,30 @@ export class BoardState
 
   checkForWinner()
   {//returns true if a winner is found and sets this.winner to the player number of the winner
-    console.log("Checking for winner");
-    this.players.every((player, i) => {
-      if(!player.isWinner)
-      {
-        if(player.x == this.goals[player.nextGoal].x && player.y == this.goals[player.nextGoal].y)
+    if(this.winner == null)
+    {
+      console.log("Checking for winner");
+      this.players.every((player, i) => {
+        if(!player.isWinner)
         {
-          console.log("Player " + i + "reached goal " + player.nextGoal);
-          player.nextGoal++;
-          if(player.nextGoal == this.goals.length)
+          if(player.x == this.goals[player.nextGoal].x && player.y == this.goals[player.nextGoal].y)
           {
-            console.log("Found winner: " + i);
-            player.isWinner = true;
-            this.winner = i;
-            return false;//breaks out of "every" loop
+            console.log("Player " + i + " reached goal " + player.nextGoal);
+            player.nextGoal = player.nextGoal + 1;
+            // player.nextGoal++;
+            if(player.nextGoal == this.goals.length)
+            {
+              console.log("Found winner: " + i);
+              player.isWinner = true;
+              this.winner = i;
+              // return false;//breaks out of "every" loop
+            }
+            this.boardStateListener();
           }
-          this.boardStateListener();
         }
-      }
-      return true;//continues "every" loop
-    });
+        return true;//continues "every" loop
+      });
+    }
 
     if(this.winner != null)
     {

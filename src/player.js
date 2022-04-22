@@ -89,6 +89,11 @@ async function main()
   const eventFeed = document.getElementById('event-feed');
   const messageCenter = document.getElementById('message-center');
 
+  const gameDetails = document.getElementById("game-details");
+  const detailsPlayerNumber = document.createElement('p');
+  detailsPlayerNumber.textContent = "You are Player " + playerNumber;
+  gameDetails.appendChild(detailsPlayerNumber);
+
   const programQueue = new Array();
 
   const buttonMove1 = newProgramButton('program-0', {name: 'move', value: 1}, player);
