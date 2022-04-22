@@ -7,6 +7,10 @@ yarn-error.log*
 firebase-debug.log*
 firebase-debug.*.log*
 
+# Distribution files
+# These should not be edited directly and should be recompiled before use
+dist/
+
 # Firebase cache
 .firebase/
 
@@ -17,6 +21,8 @@ firebase-debug.*.log*
 # it commented so all members can deploy to the same project(s) in .firebaserc.
 # .firebaserc
 
+# Firebase Config details
+#  This file contains sensitive data
 firebaseConfig.js
 
 # Runtime data
