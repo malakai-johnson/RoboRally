@@ -36,11 +36,6 @@ module.exports = {
       chunks: ['login']
     }),
     new HtmlWebpackPlugin({
-      filename: 'host.html',
-      template: 'src/host.html',
-      chunks: ['host', 'player']
-    }),
-    new HtmlWebpackPlugin({
       filename: 'play.html',
       template: 'src/play.html',
       chunks: ['play']

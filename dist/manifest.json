@@ -5,6 +5,5 @@
   "play.js": "auto/play.js",
   "404.html": "auto/404.html",
   "login.html": "auto/login.html",
-  "host.html": "auto/host.html",
   "play.html": "auto/play.html"
 }

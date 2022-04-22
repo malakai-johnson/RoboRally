@@ -35,7 +35,7 @@ export class BoardState
     let output = '\n';
     if(this.winner != null)
     {
-      output = "PLAYER " + this.winner + " WINS!";
+      output = "PLAYER " + this.winner + " WINS!\n";
     }
     output = output + "NOTE: north = -y, south = +y, east = +x, west = -x\ni.e. (0,0) is north west corner\n";
     output = output + "Round: " + this.round + "\n";
@@ -80,9 +80,34 @@ export class BoardState
     return "( " + goal.x + ", " + goal.y + " )";
   }
 
+  programToString(program)
+  {
+    switch(program.name)
+    {
+      case 'move':
+        return "Move " + program.value;
+      case 'rotate':
+          switch(program.value % 3)
+          {
+            case -1:
+              return "Rotate Left";
+            case 1:
+              return "Rotate Right";
+            case -2:
+            case 2:
+              return "U-Turn";
+            default:
+              return "Invalid turn";
+          }
+        default:
+          return "Invalid program";
+    }
+  }
+
   executeProgram(program, playerNumber)
   {
-    // console.log("Executing: ", programToString(program));
+    // console.log("Executing: ", this.programToString(program), "For Player ", playerNumber, ": ")
+    // console.log(this.playerToString(this.players[playerNumber]));
     const directions = ['north', 'east', 'south', 'west'];
     // let updatedPosition = currentPosition;
     switch(program.name)
@@ -105,7 +130,7 @@ export class BoardState
         }
         break;
       case 'rotate':
-        let newDirectionIndex = (directions.indexOf(players[playerNumber].direction) + program.value) % 4;
+        let newDirectionIndex = (directions.indexOf(this.players[playerNumber].direction) + program.value) % 4;
         if(newDirectionIndex >= 0)
         {
           this.players[playerNumber].direction = directions[newDirectionIndex];
@@ -132,8 +157,8 @@ export class BoardState
       programQueues.forEach((programQueue, j) => {
         // console.log("Player ", j, ": ", programToString(programQueue['phase-'+i]))
         let nextGoal = this.players[j].nextGoal;
-        phaseSummary = phaseSummary + "--Player " + j + ": " + this.playerToString(this.players[j])+ " => " + programToString(programQueue['phase-'+i]) + " => ";
-        this.players[j] = this.executeProgram(programQueue['phase-'+i], this.players[j]);
+        phaseSummary = phaseSummary + "--Player " + j + ": " + this.playerToString(this.players[j]) + " => " + programToString(programQueue['phase-'+i]) + " => ";
+        this.executeProgram(programQueue['phase-'+i], j);
         phaseSummary = phaseSummary + this.playerToString(this.players[j]) + '\n';
         if (nextGoal < this.players[j].nextGoal)
         {

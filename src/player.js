@@ -53,7 +53,7 @@ export class Player
 
   toString()
   {
-    return "Player " + this.playerNumber + ": {isReady:" + this.isReady + ", " + this.programQueue + ", isQueueFull: " + this.isQueueFull() + "}";
+    return "Player " + this.playerNumber + ": {isReady:" + this.isReady + ", " + this.queueString() + ", isQueueFull: " + this.isQueueFull() + "}";
   }
 
   queueString()
