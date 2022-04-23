@@ -185,6 +185,9 @@ async function displayGameBoard(boardState)
     console.log(boardState.toString())
     gameboard.textContent = boardState.toString();
 
+    const canvas = document.getElementById("canvas");
+    boardState.toCanvas(canvas);
+
     const eventFeed = document.getElementById('event-feed');
     eventFeed.textContent = boardState.printHistory();
 }

@@ -118,6 +118,17 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 
 /***/ }),
 
+/***/ "./src/assets.js":
+/*!***********************!*\
+  !*** ./src/assets.js ***!
+  \***********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"images\": () => (/* binding */ images)\n/* harmony export */ });\n/* harmony import */ var _imgs_floor1_png__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./imgs/floor1.png */ \"./src/imgs/floor1.png\");\n/* harmony import */ var _imgs_player0_png__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./imgs/player0.png */ \"./src/imgs/player0.png\");\n/* harmony import */ var _imgs_player1_png__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./imgs/player1.png */ \"./src/imgs/player1.png\");\n/* harmony import */ var _imgs_player2_png__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./imgs/player2.png */ \"./src/imgs/player2.png\");\n/* harmony import */ var _imgs_player3_png__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./imgs/player3.png */ \"./src/imgs/player3.png\");\n/* harmony import */ var _imgs_player4_png__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./imgs/player4.png */ \"./src/imgs/player4.png\");\n/* harmony import */ var _imgs_player5_png__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./imgs/player5.png */ \"./src/imgs/player5.png\");\n/* harmony import */ var _imgs_player6_png__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./imgs/player6.png */ \"./src/imgs/player6.png\");\n/* harmony import */ var _imgs_player7_png__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./imgs/player7.png */ \"./src/imgs/player7.png\");\n/* harmony import */ var _imgs_player8_png__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./imgs/player8.png */ \"./src/imgs/player8.png\");\n/* harmony import */ var _imgs_player9_png__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./imgs/player9.png */ \"./src/imgs/player9.png\");\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\nconst images = {\r\n  floor1: _imgs_floor1_png__WEBPACK_IMPORTED_MODULE_0__,\r\n  player0: _imgs_player0_png__WEBPACK_IMPORTED_MODULE_1__,\r\n  player1: _imgs_player1_png__WEBPACK_IMPORTED_MODULE_2__,\r\n  player2: _imgs_player2_png__WEBPACK_IMPORTED_MODULE_3__,\r\n  player3: _imgs_player3_png__WEBPACK_IMPORTED_MODULE_4__,\r\n  player4: _imgs_player4_png__WEBPACK_IMPORTED_MODULE_5__,\r\n  player5: _imgs_player5_png__WEBPACK_IMPORTED_MODULE_6__,\r\n  player6: _imgs_player6_png__WEBPACK_IMPORTED_MODULE_7__,\r\n  player7: _imgs_player7_png__WEBPACK_IMPORTED_MODULE_8__,\r\n  player8: _imgs_player8_png__WEBPACK_IMPORTED_MODULE_9__,\r\n  player9: _imgs_player9_png__WEBPACK_IMPORTED_MODULE_10__,\r\n}\r\n\n\n//# sourceURL=webpack://roborally/./src/assets.js?");
+
+/***/ }),
+
 /***/ "./src/boardState.js":
 /*!***************************!*\
   !*** ./src/boardState.js ***!
@@ -125,7 +136,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"BoardState\": () => (/* binding */ BoardState),\n/* harmony export */   \"boardStateConverter\": () => (/* binding */ boardStateConverter),\n/* harmony export */   \"programToString\": () => (/* binding */ programToString)\n/* harmony export */ });\n/* harmony import */ var firebase_firestore__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! firebase/firestore */ \"./node_modules/firebase/firestore/dist/index.esm.js\");\n\r\n\r\n// import {\r\n//   executeProgram,\r\n//   programToString,\r\n// } from './botPrograms.js'\r\n\r\nclass BoardState\r\n{\r\n  constructor (round = 0, history = [\"~~History~~\"], players = new Array({x: 0, y: 0, direction: 'north', nextGoal: 0, isWinner: false}), goals = new Array({x: 6, y: 6}), winner = null)\r\n  {\r\n    this.round = round;\r\n    this.history = history;\r\n    this.players = players;\r\n    this.goals = goals;\r\n    this.winner = winner;\r\n    this.boardStateListener = function () {console.log(\"boardStateListener not set, this probably means the bordState is trying to be updated by someone other than the host.\");};\r\n\r\n    this.numberOfPhases = 5;\r\n  }\r\n\r\n  toString()\r\n  {\r\n    let output = '\\n';\r\n    if(this.winner != null)\r\n    {\r\n      output = \"PLAYER \" + this.winner + \" WINS!\";\r\n    }\r\n    output = output + \"NOTE: north = -y, south = +y, east = +x, west = -x\\ni.e. (0,0) is north west corner\\n\";\r\n    output = output + \"Round: \" + this.round + \"\\n\";\r\n    output = output + \"-Goals:\\n\"\r\n    for (let i = 0; i < this.goals.length; i++)\r\n    {\r\n      output = output + \"Goal \" + i + \": \" + this.goalToString(this.goals[i]) + \"\\n\";\r\n    }\r\n    output = output + \"-Player Positions:\\n\"\r\n    for(let i = 0; i < this.players.length; i++)\r\n    {\r\n      output = output + \"--Player \" + i + \": \" + this.playerToString(this.players[i]) + \"\\n\";\r\n    }\r\n    return output + '\\n';\r\n  }\r\n\r\n  printHistory()\r\n  {\r\n    let output = '';\r\n    this.history.forEach((line, i) => {\r\n      output = output + line + '\\n';\r\n    });\r\n    return output;\r\n  }\r\n\r\n  addPlayer(playerNumber)\r\n  {\r\n    this.players[playerNumber] = {x: 0, y: 0, direction: 'north', nextGoal: 0};\r\n  }\r\n\r\n  playerToString(player)\r\n  {\r\n    if(player.nextGoal == this.goals.length)\r\n    {\r\n      return \"Position: ( \" + player.x + \", \" + player.y + \", \" + player.direction + \" ), WINNER!\";\r\n    }\r\n    return \"Position: ( \" + player.x + \", \" + player.y + \", \" + player.direction + \" ), Next Goal: \" + player.nextGoal;\r\n  }\r\n\r\n  goalToString(goal)\r\n  {\r\n    return \"( \" + goal.x + \", \" + goal.y + \" )\";\r\n  }\r\n\r\n  programToString(program)\r\n  {\r\n    switch(program.name)\r\n    {\r\n      case 'move':\r\n        return \"Move \" + program.value;\r\n      case 'rotate':\r\n          switch(program.value % 3)\r\n          {\r\n            case -1:\r\n              return \"Rotate Left\";\r\n            case 1:\r\n              return \"Rotate Right\";\r\n            case -2:\r\n            case 2:\r\n              return \"U-Turn\";\r\n            default:\r\n              return \"Invalid turn\";\r\n          }\r\n        default:\r\n          return \"Invalid program\";\r\n    }\r\n  }\r\n\r\n  executeProgram(program, playerNumber)\r\n  {\r\n    // console.log(\"Executing: \", this.programToString(program), \"For Player \", playerNumber, \": \")\r\n    // console.log(this.playerToString(this.players[playerNumber]));\r\n    const directions = ['north', 'east', 'south', 'west'];\r\n    // let updatedPosition = currentPosition;\r\n    switch(program.name)\r\n    {\r\n      case 'move':\r\n        switch(this.players[playerNumber].direction)\r\n        {\r\n          case 'north':\r\n            this.players[playerNumber].y -= program.value;\r\n            break;\r\n          case 'south':\r\n            this.players[playerNumber].y += program.value;\r\n            break;\r\n          case 'east':\r\n            this.players[playerNumber].x += program.value;\r\n            break;\r\n          case 'west':\r\n            this.players[playerNumber].x -= program.value;\r\n            break;\r\n        }\r\n        break;\r\n      case 'rotate':\r\n        let newDirectionIndex = (directions.indexOf(this.players[playerNumber].direction) + program.value) % 4;\r\n        if(newDirectionIndex >= 0)\r\n        {\r\n          this.players[playerNumber].direction = directions[newDirectionIndex];\r\n        }\r\n        else\r\n        {\r\n          this.players[playerNumber].direction = directions[newDirectionIndex + 4];\r\n        }\r\n        break;\r\n      default:\r\n        console.log(\"Invalid program name\");\r\n        break;\r\n    }\r\n  }\r\n\r\n  executeProgramQueues(programQueues)\r\n  {\r\n    this.round++;\r\n    console.log(\"Executing Round \" + this.round);\r\n    this.history.push(\"Round \" + this.round);\r\n    for(let i = 0; i < this.numberOfPhases; i++)\r\n    {\r\n      let phaseSummary = '-Phase ' + i + '\\n';\r\n      programQueues.forEach((programQueue, j) => {\r\n        // console.log(\"Player \", j, \": \", programToString(programQueue['phase-'+i]))\r\n        let nextGoal = this.players[j].nextGoal;\r\n        phaseSummary = phaseSummary + \"--Player \" + j + \": \" + this.playerToString(this.players[j]) + \" => \" + programToString(programQueue['phase-'+i]) + \" => \";\r\n        this.executeProgram(programQueue['phase-'+i], j);\r\n        phaseSummary = phaseSummary + this.playerToString(this.players[j]) + '\\n';\r\n        if (nextGoal < this.players[j].nextGoal)\r\n        {\r\n          phaseSummary = phaseSummary + \"Player \" + j + \" Reached Goal \" + nextGoal + \"!\\n\";\r\n        }\r\n      });\r\n      console.log(phaseSummary);\r\n      this.history.push(phaseSummary);\r\n      if(this.checkForWinner())\r\n      {\r\n        console.log(\"Player \" + this.winner + \" Wins!\");\r\n        this.history.push(\"Player \" + this.winner + \" Wins!\");\r\n        // break;\r\n      }\r\n      this.boardStateListener();\r\n    }\r\n  }\r\n\r\n  checkForWinner()\r\n  {//returns true if a winner is found and sets this.winner to the player number of the winner\r\n    if(this.winner == null)\r\n    {\r\n      console.log(\"Checking for winner\");\r\n      this.players.every((player, i) => {\r\n        if(!player.isWinner)\r\n        {\r\n          if(player.x == this.goals[player.nextGoal].x && player.y == this.goals[player.nextGoal].y)\r\n          {\r\n            console.log(\"Player \" + i + \" reached goal \" + player.nextGoal);\r\n            player.nextGoal = player.nextGoal + 1;\r\n            // player.nextGoal++;\r\n            if(player.nextGoal == this.goals.length)\r\n            {\r\n              console.log(\"Found winner: \" + i);\r\n              player.isWinner = true;\r\n              this.winner = i;\r\n              // return false;//breaks out of \"every\" loop\r\n            }\r\n            this.boardStateListener();\r\n          }\r\n        }\r\n        return true;//continues \"every\" loop\r\n      });\r\n    }\r\n\r\n    if(this.winner != null)\r\n    {\r\n      return true;\r\n    }\r\n    else\r\n    {\r\n      return false;\r\n    }\r\n  }\r\n  onBoardStateChange(newBoardStateListener)\r\n  {\r\n    this.boardStateListener = newBoardStateListener;\r\n  }\r\n}\r\n\r\nconst boardStateConverter = {\r\n  toFirestore: (boardState) => {\r\n    return {\r\n      round: boardState.round,\r\n      history: boardState.history,\r\n      players: boardState.players,\r\n      goals: boardState.goals,\r\n      winner: boardState.winner,\r\n    };\r\n  },\r\n  fromFirestore: (snapshot, options) =>\r\n  {\r\n    const data = snapshot.data(options);\r\n    return new BoardState(data.round, data.history, data.players, data.goals, data.winner);\r\n  }\r\n}\r\n\r\nfunction programToString(program)\r\n{\r\n  switch(program.name)\r\n  {\r\n    case 'move':\r\n      return \"Move \" + program.value;\r\n    case 'rotate':\r\n        switch(program.value % 3)\r\n        {\r\n          case -1:\r\n            return \"Rotate Left\";\r\n          case 1:\r\n            return \"Rotate Right\";\r\n          case -2:\r\n          case 2:\r\n            return \"U-Turn\";\r\n          default:\r\n            return \"Invalid turn\";\r\n        }\r\n      default:\r\n        return \"Invalid program\";\r\n  }\r\n}\r\n\n\n//# sourceURL=webpack://roborally/./src/boardState.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"BoardState\": () => (/* binding */ BoardState),\n/* harmony export */   \"boardStateConverter\": () => (/* binding */ boardStateConverter),\n/* harmony export */   \"programToString\": () => (/* binding */ programToString)\n/* harmony export */ });\n/* harmony import */ var firebase_firestore__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! firebase/firestore */ \"./node_modules/firebase/firestore/dist/index.esm.js\");\n/* harmony import */ var _assets_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./assets.js */ \"./src/assets.js\");\n\r\n\r\n\r\n\r\nconst TO_RADIANS = Math.PI/180;\r\n\r\n// import {\r\n//   executeProgram,\r\n//   programToString,\r\n// } from './botPrograms.js'\r\n\r\nclass BoardState\r\n{\r\n  constructor (round = 0, history = [\"~~History~~\"], players = new Array({x: 0, y: 0, direction: 'north', nextGoal: 0}), goals = new Array({x: 6, y: 6}), winner = null)\r\n  {\r\n    this.round = round;\r\n    this.history = history;\r\n    this.players = players;\r\n    this.goals = goals;\r\n    this.winner = winner;\r\n    this.boardStateListener = function () {console.log(\"boardStateListener not set, this probably means the bordState is trying to be updated by someone other than the host.\");};\r\n\r\n    this.numberOfPhases = 5;\r\n  }\r\n\r\n  toString()\r\n  {\r\n    let output = '\\n';\r\n    if(this.winner != null)\r\n    {\r\n      output = \"PLAYER \" + this.winner + \" WINS!\\n\";\r\n    }\r\n    output = output + \"NOTE: north = -y, south = +y, east = +x, west = -x\\ni.e. (0,0) is north west corner\\n\";\r\n    output = output + \"Round: \" + this.round + \"\\n\";\r\n    output = output + \"-Goals:\\n\"\r\n    for (let i = 0; i < this.goals.length; i++)\r\n    {\r\n      output = output + \"Goal \" + i + \": \" + this.goalToString(this.goals[i]) + \"\\n\";\r\n    }\r\n    output = output + \"-Player Positions:\\n\"\r\n    for(let i = 0; i < this.players.length; i++)\r\n    {\r\n      output = output + \"--Player \" + i + \": \" + this.playerToString(this.players[i]) + \"\\n\";\r\n    }\r\n    return output + '\\n';\r\n  }\r\n\r\n  toCanvas(canvas)\r\n  {\r\n    // const canvas = document.getElementById(\"canvas\");\r\n    const cellSize = 60;\r\n    const ctx = canvas.getContext(\"2d\");\r\n    ctx.strokeStyle = \"black\";\r\n    ctx.lineWidth = 1;\r\n\r\n    //draw grid\r\n    for (let i = 0; i <= 10; i++) {\r\n      const x = i*cellSize;\r\n      ctx.moveTo(x, 0);\r\n      ctx.lineTo(x, canvas.height);\r\n      ctx.stroke();\r\n\r\n      const y = i*cellSize;\r\n      ctx.moveTo(0, y);\r\n      ctx.lineTo(canvas.width, y);\r\n      ctx.stroke();\r\n    }\r\n\r\n    //draw images\r\n    const p = ctx.lineWidth / 2; //padding\r\n    for (let xCell = 0; xCell < 10; xCell++)\r\n    {\r\n      for (let yCell = 0; yCell < 10; yCell++)\r\n      {\r\n        const x = xCell * cellSize;\r\n        const y = yCell * cellSize;\r\n        const img = new Image();\r\n        img.src = _assets_js__WEBPACK_IMPORTED_MODULE_1__.images.floor1;\r\n\r\n        ctx.drawImage(img, x+p, y+p, cellSize-p*2, cellSize-p*2);\r\n      }\r\n    }\r\n\r\n    ctx.save();\r\n    for (let playerNumber = 0; playerNumber < this.players.length; playerNumber++)\r\n    {\r\n      const x = this.players[playerNumber].x * cellSize + cellSize/2;\r\n      const y = this.players[playerNumber].y * cellSize + cellSize/2;\r\n      ctx.translate(x, y);\r\n      const img = new Image();\r\n      //TODO: set img.src to your api url instead of the dummyimage url.\r\n      img.src = _assets_js__WEBPACK_IMPORTED_MODULE_1__.images[\"player\"+playerNumber];\r\n      switch(this.players[playerNumber].direction)\r\n      {\r\n        case 'north':\r\n          break;\r\n        case 'south':\r\n          ctx.rotate(180 * TO_RADIANS);\r\n          break;\r\n        case 'east':\r\n          ctx.rotate(90 * TO_RADIANS);\r\n          break;\r\n        case 'west':\r\n          ctx.rotate(-90 * TO_RADIANS);\r\n          break;\r\n        default:\r\n          console.log(\"Player direction error\");\r\n      }\r\n\r\n      ctx.drawImage(img, -cellSize/2, -cellSize/2);\r\n      ctx.restore();\r\n    }\r\n  }\r\n\r\n  printHistory()\r\n  {\r\n    let output = '';\r\n    this.history.forEach((line, i) => {\r\n      output = output + line + '\\n';\r\n    });\r\n    return output;\r\n  }\r\n\r\n  addPlayer(playerNumber)\r\n  {\r\n    this.players[playerNumber] = {\r\n      x: 0,\r\n      y: 0,\r\n      direction: 'north',\r\n      nextGoal: 0,\r\n    };\r\n  }\r\n\r\n  playerToString(player)\r\n  {\r\n    if(player.nextGoal == this.goals.length)\r\n    {\r\n      return \"Position: ( \" + player.x + \", \" + player.y + \", \" + player.direction + \" ), WINNER!\";\r\n    }\r\n    return \"Position: ( \" + player.x + \", \" + player.y + \", \" + player.direction + \" ), Next Goal: \" + player.nextGoal;\r\n  }\r\n\r\n  goalToString(goal)\r\n  {\r\n    return \"( \" + goal.x + \", \" + goal.y + \" )\";\r\n  }\r\n\r\n  programToString(program)\r\n  {\r\n    switch(program.name)\r\n    {\r\n      case 'move':\r\n        return \"Move \" + program.value;\r\n      case 'rotate':\r\n          switch(program.value % 3)\r\n          {\r\n            case -1:\r\n              return \"Rotate Left\";\r\n            case 1:\r\n              return \"Rotate Right\";\r\n            case -2:\r\n            case 2:\r\n              return \"U-Turn\";\r\n            default:\r\n              return \"Invalid turn\";\r\n          }\r\n        default:\r\n          return \"Invalid program\";\r\n    }\r\n  }\r\n\r\n  executeProgram(program, playerNumber)\r\n  {\r\n    // console.log(\"Executing: \", this.programToString(program), \"For Player \", playerNumber, \": \")\r\n    // console.log(this.playerToString(this.players[playerNumber]));\r\n    const directions = ['north', 'east', 'south', 'west'];\r\n    // let updatedPosition = currentPosition;\r\n    switch(program.name)\r\n    {\r\n      case 'move':\r\n        switch(this.players[playerNumber].direction)\r\n        {\r\n          case 'north':\r\n            this.players[playerNumber].y -= program.value;\r\n            break;\r\n          case 'south':\r\n            this.players[playerNumber].y += program.value;\r\n            break;\r\n          case 'east':\r\n            this.players[playerNumber].x += program.value;\r\n            break;\r\n          case 'west':\r\n            this.players[playerNumber].x -= program.value;\r\n            break;\r\n        }\r\n        break;\r\n      case 'rotate':\r\n        let newDirectionIndex = (directions.indexOf(this.players[playerNumber].direction) + program.value) % 4;\r\n        if(newDirectionIndex >= 0)\r\n        {\r\n          this.players[playerNumber].direction = directions[newDirectionIndex];\r\n        }\r\n        else\r\n        {\r\n          this.players[playerNumber].direction = directions[newDirectionIndex + 4];\r\n        }\r\n        break;\r\n      default:\r\n        console.log(\"Invalid program name\");\r\n        break;\r\n    }\r\n  }\r\n\r\n  executeProgramQueues(programQueues)\r\n  {\r\n    this.round++;\r\n    console.log(\"Executing Round \" + this.round);\r\n    this.history.push(\"Round \" + this.round);\r\n    for(let i = 0; i < this.numberOfPhases; i++)\r\n    {\r\n      let phaseSummary = '-Phase ' + i + '\\n';\r\n      programQueues.forEach((programQueue, j) => {\r\n        // console.log(\"Player \", j, \": \", programToString(programQueue['phase-'+i]))\r\n        let nextGoal = this.players[j].nextGoal;\r\n        phaseSummary = phaseSummary + \"--Player \" + j + \": \" + this.playerToString(this.players[j]) + \" => \" + programToString(programQueue['phase-'+i]) + \" => \";\r\n        this.executeProgram(programQueue['phase-'+i], j);\r\n        phaseSummary = phaseSummary + this.playerToString(this.players[j]) + '\\n';\r\n        if (nextGoal < this.players[j].nextGoal)\r\n        {\r\n          phaseSummary = phaseSummary + \"Player \" + j + \" Reached Goal \" + nextGoal + \"!\\n\";\r\n        }\r\n      });\r\n      console.log(phaseSummary);\r\n      this.history.push(phaseSummary);\r\n      if(this.checkForWinner())\r\n      {\r\n        console.log(\"Player \" + this.winner + \" Wins!\");\r\n        this.history.push(\"Player \" + this.winner + \" Wins!\");\r\n        // break;\r\n      }\r\n      this.boardStateListener();\r\n    }\r\n  }\r\n\r\n  checkForWinner()\r\n  {//returns true if a winner is found and sets this.winner to the player number of the winner\r\n    if(this.winner == null)\r\n    {\r\n      console.log(\"Checking for winner\");\r\n      this.players.every((player, i) => {\r\n        if(!player.isWinner)\r\n        {\r\n          if(player.x == this.goals[player.nextGoal].x && player.y == this.goals[player.nextGoal].y)\r\n          {\r\n            console.log(\"Player \" + i + \" reached goal \" + player.nextGoal);\r\n            player.nextGoal = player.nextGoal + 1;\r\n            // player.nextGoal++;\r\n            if(player.nextGoal == this.goals.length)\r\n            {\r\n              console.log(\"Found winner: \" + i);\r\n              player.isWinner = true;\r\n              this.winner = i;\r\n              // return false;//breaks out of \"every\" loop\r\n            }\r\n            this.boardStateListener();\r\n          }\r\n        }\r\n        return true;//continues \"every\" loop\r\n      });\r\n    }\r\n\r\n    if(this.winner != null)\r\n    {\r\n      return true;\r\n    }\r\n    else\r\n    {\r\n      return false;\r\n    }\r\n  }\r\n  onBoardStateChange(newBoardStateListener)\r\n  {\r\n    this.boardStateListener = newBoardStateListener;\r\n  }\r\n}\r\n\r\nconst boardStateConverter = {\r\n  toFirestore: (boardState) => {\r\n    return {\r\n      round: boardState.round,\r\n      history: boardState.history,\r\n      players: boardState.players,\r\n      goals: boardState.goals,\r\n      winner: boardState.winner,\r\n    };\r\n  },\r\n  fromFirestore: (snapshot, options) =>\r\n  {\r\n    const data = snapshot.data(options);\r\n    return new BoardState(data.round, data.history, data.players, data.goals, data.winner);\r\n  }\r\n}\r\n\r\nfunction programToString(program)\r\n{\r\n  switch(program.name)\r\n  {\r\n    case 'move':\r\n      return \"Move \" + program.value;\r\n    case 'rotate':\r\n        switch(program.value % 3)\r\n        {\r\n          case -1:\r\n            return \"Rotate Left\";\r\n          case 1:\r\n            return \"Rotate Right\";\r\n          case -2:\r\n          case 2:\r\n            return \"U-Turn\";\r\n          default:\r\n            return \"Invalid turn\";\r\n        }\r\n      default:\r\n        return \"Invalid program\";\r\n  }\r\n}\r\n\n\n//# sourceURL=webpack://roborally/./src/boardState.js?");
 
 /***/ }),
 
@@ -148,6 +159,127 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 
 "use strict";
 eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"Player\": () => (/* binding */ Player),\n/* harmony export */   \"setPlayerReady\": () => (/* binding */ setPlayerReady)\n/* harmony export */ });\n/* harmony import */ var _firebaseConfig_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./firebaseConfig.js */ \"./src/firebaseConfig.js\");\n/* harmony import */ var _boardState_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./boardState.js */ \"./src/boardState.js\");\n/* harmony import */ var firebase_app__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! firebase/app */ \"./node_modules/firebase/app/dist/index.esm.js\");\n/* harmony import */ var firebase_auth__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! firebase/auth */ \"./node_modules/firebase/auth/dist/index.esm.js\");\n/* harmony import */ var firebase_firestore__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! firebase/firestore */ \"./node_modules/firebase/firestore/dist/index.esm.js\");\n//This will be the script which handles the player's hand and move choices.\r\n\r\n\r\n\r\n\r\n// import {\r\n//   programToString,\r\n//   Program,\r\n//   ProgramRecord,\r\n//   programRecordConverter\r\n// } from './botPrograms.js'\r\n\r\n// Firebase App (the core Firebase SDK) is always required\r\n\r\n\r\n// Add the Firebase products and methods that you want to use\r\n\r\n\r\n\r\n\r\nclass Player\r\n{\r\n  constructor (playerNumber, isReady = false, programQueue = new Array())\r\n  {\r\n    this.playerNumber = playerNumber;\r\n    this.programQueue = programQueue;\r\n    this.queueListener = function () {console.log(\"queueListener not set\");};\r\n    this.isReady = isReady;\r\n    this.readyListener = function () {console.log(\"readyListener not set\");};\r\n    console.log(\"Created new Player: \" + this.toString());\r\n  }\r\n\r\n  toString()\r\n  {\r\n    return \"Player \" + this.playerNumber + \": {isReady:\" + this.isReady + \", \" + this.queueString() + \", isQueueFull: \" + this.isQueueFull() + \"}\";\r\n  }\r\n\r\n  queueString()\r\n  {\r\n    let output = \"Program Queue:\\n\";\r\n    this.programQueue.forEach((program, i) => {\r\n      output = output + \"Phase \" + i + \": \" + (0,_boardState_js__WEBPACK_IMPORTED_MODULE_1__.programToString)(program) + \"\\n\";\r\n    });\r\n    if(this.isQueueFull())\r\n    {\r\n      output = output + \"***Queue is Full.***\"\r\n    }\r\n    return output;\r\n  }\r\n\r\n  addProgramToQueue(program)\r\n  {\r\n    if(!this.isQueueFull())\r\n    {\r\n      // console.log(\"Adding program to queue...\")\r\n      this.programQueue.push(program);\r\n      this.queueListener();\r\n    }\r\n    else {\r\n      console.log(\"Program Queue Full\");\r\n    }\r\n    // console.log(\"Program Queue: \" + this.programQueue + \", length: \" + this.programQueue.length);\r\n  }\r\n\r\n  popQueue()\r\n  {\r\n\r\n    let program = this.programQueue.pop();\r\n    this.queueListener();\r\n    return program;\r\n  }\r\n\r\n  clearQueue()\r\n  {\r\n    this.programQueue.length = 0;\r\n    this.queueListener();\r\n  }\r\n\r\n  setQueueListener(newListener)\r\n  {\r\n    this.queueListener = newListener;\r\n  }\r\n\r\n  isQueueFull()\r\n  {\r\n    if(this.programQueue.length < 5)\r\n    {\r\n      return false;\r\n    }\r\n    else\r\n    {\r\n      return true;\r\n    }\r\n  }\r\n\r\n  queueToFirestore()\r\n  {\r\n    const firestoreQueue = {};\r\n    this.programQueue.forEach((program, i) => {\r\n      firestoreQueue['phase-' + i] = program;\r\n    });\r\n    return firestoreQueue;\r\n  }\r\n\r\n  readyUp()\r\n  {\r\n    if(this.isQueueFull())\r\n    {\r\n      this.isReady = true;\r\n      console.log(\"Player \" + this.playerNumber + \" is ready.\");\r\n    }\r\n    else\r\n    {\r\n      console.log(\"Cannot ready, queue not full.\");\r\n    }\r\n    this.readyListener();\r\n  }\r\n\r\n  readyDown()\r\n  {\r\n    this.isReady = false;\r\n    console.log(\"New Round Begin\");\r\n    this.clearQueue();\r\n    this.readyListener();\r\n  }\r\n\r\n  setReady(isReady)\r\n  {\r\n    this.isReady = isReady;\r\n    this.readyListener();\r\n  }\r\n\r\n  setReadyListener(newListener)\r\n  {\r\n    this.readyListener = newListener;\r\n  }\r\n\r\n}\r\n\r\nfunction setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, isReady, playerProgramQueue = {})\r\n{\r\n  if(playersReadyDocSnap.exists())\r\n  {\r\n    let readyList = playersReadyDocSnap.data().isReadyList;\r\n    let programQueues = playersReadyDocSnap.data().programQueues;\r\n    readyList[playerNumber] = isReady;\r\n    programQueues[playerNumber] = playerProgramQueue;\r\n    (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_4__.updateDoc)(playersReadyDocRef, {\r\n      isReadyList: readyList,\r\n      programQueues: programQueues,\r\n    });\r\n  }\r\n}\r\n\n\n//# sourceURL=webpack://roborally/./src/player.js?");
+
+/***/ }),
+
+/***/ "./src/imgs/floor1.png":
+/*!*****************************!*\
+  !*** ./src/imgs/floor1.png ***!
+  \*****************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+eval("module.exports = __webpack_require__.p + \"52035907bbc2f796af7b.png\";\n\n//# sourceURL=webpack://roborally/./src/imgs/floor1.png?");
+
+/***/ }),
+
+/***/ "./src/imgs/player0.png":
+/*!******************************!*\
+  !*** ./src/imgs/player0.png ***!
+  \******************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+eval("module.exports = __webpack_require__.p + \"67f71e0adff42af6bc00.png\";\n\n//# sourceURL=webpack://roborally/./src/imgs/player0.png?");
+
+/***/ }),
+
+/***/ "./src/imgs/player1.png":
+/*!******************************!*\
+  !*** ./src/imgs/player1.png ***!
+  \******************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+eval("module.exports = __webpack_require__.p + \"6f80a448bc1d24c7f4f6.png\";\n\n//# sourceURL=webpack://roborally/./src/imgs/player1.png?");
+
+/***/ }),
+
+/***/ "./src/imgs/player2.png":
+/*!******************************!*\
+  !*** ./src/imgs/player2.png ***!
+  \******************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+eval("module.exports = __webpack_require__.p + \"ab86df277e823719f950.png\";\n\n//# sourceURL=webpack://roborally/./src/imgs/player2.png?");
+
+/***/ }),
+
+/***/ "./src/imgs/player3.png":
+/*!******************************!*\
+  !*** ./src/imgs/player3.png ***!
+  \******************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+eval("module.exports = __webpack_require__.p + \"145e14a81f2f8053dfdc.png\";\n\n//# sourceURL=webpack://roborally/./src/imgs/player3.png?");
+
+/***/ }),
+
+/***/ "./src/imgs/player4.png":
+/*!******************************!*\
+  !*** ./src/imgs/player4.png ***!
+  \******************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+eval("module.exports = __webpack_require__.p + \"a919bb79478c9b96919c.png\";\n\n//# sourceURL=webpack://roborally/./src/imgs/player4.png?");
+
+/***/ }),
+
+/***/ "./src/imgs/player5.png":
+/*!******************************!*\
+  !*** ./src/imgs/player5.png ***!
+  \******************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+eval("module.exports = __webpack_require__.p + \"a638dcd1a8c8a5120cd1.png\";\n\n//# sourceURL=webpack://roborally/./src/imgs/player5.png?");
+
+/***/ }),
+
+/***/ "./src/imgs/player6.png":
+/*!******************************!*\
+  !*** ./src/imgs/player6.png ***!
+  \******************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+eval("module.exports = __webpack_require__.p + \"25a1bb11bd731636a75d.png\";\n\n//# sourceURL=webpack://roborally/./src/imgs/player6.png?");
+
+/***/ }),
+
+/***/ "./src/imgs/player7.png":
+/*!******************************!*\
+  !*** ./src/imgs/player7.png ***!
+  \******************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+eval("module.exports = __webpack_require__.p + \"8fd93eaf80d4db2fb88a.png\";\n\n//# sourceURL=webpack://roborally/./src/imgs/player7.png?");
+
+/***/ }),
+
+/***/ "./src/imgs/player8.png":
+/*!******************************!*\
+  !*** ./src/imgs/player8.png ***!
+  \******************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+eval("module.exports = __webpack_require__.p + \"77b2147effd28a488ea1.png\";\n\n//# sourceURL=webpack://roborally/./src/imgs/player8.png?");
+
+/***/ }),
+
+/***/ "./src/imgs/player9.png":
+/*!******************************!*\
+  !*** ./src/imgs/player9.png ***!
+  \******************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+eval("module.exports = __webpack_require__.p + \"49bc4ffc5c17fa1050c9.png\";\n\n//# sourceURL=webpack://roborally/./src/imgs/player9.png?");
 
 /***/ }),
 
@@ -249,6 +381,26 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 			}
 /******/ 			Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/publicPath */
+/******/ 	(() => {
+/******/ 		var scriptUrl;
+/******/ 		if (__webpack_require__.g.importScripts) scriptUrl = __webpack_require__.g.location + "";
+/******/ 		var document = __webpack_require__.g.document;
+/******/ 		if (!scriptUrl && document) {
+/******/ 			if (document.currentScript)
+/******/ 				scriptUrl = document.currentScript.src
+/******/ 			if (!scriptUrl) {
+/******/ 				var scripts = document.getElementsByTagName("script");
+/******/ 				if(scripts.length) scriptUrl = scripts[scripts.length - 1].src
+/******/ 			}
+/******/ 		}
+/******/ 		// When supporting browsers where an automatic publicPath is not supported you must specify an output.publicPath manually via configuration
+/******/ 		// or pass an empty string ("") and set the __webpack_public_path__ variable from your code to use your own logic.
+/******/ 		if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
+/******/ 		scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\?.*$/, "").replace(/\/[^\/]+$/, "/");
+/******/ 		__webpack_require__.p = scriptUrl;
 /******/ 	})();
 /******/ 	
 /************************************************************************/

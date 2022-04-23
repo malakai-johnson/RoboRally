@@ -3,7 +3,18 @@
   "host.js": "auto/host.js",
   "player.js": "auto/player.js",
   "play.js": "auto/play.js",
+  "floor1.png": "auto/52035907bbc2f796af7b.png",
+  "player8.png": "auto/77b2147effd28a488ea1.png",
+  "player6.png": "auto/25a1bb11bd731636a75d.png",
+  "player0.png": "auto/67f71e0adff42af6bc00.png",
+  "player9.png": "auto/49bc4ffc5c17fa1050c9.png",
+  "player3.png": "auto/145e14a81f2f8053dfdc.png",
+  "player2.png": "auto/ab86df277e823719f950.png",
+  "player5.png": "auto/a638dcd1a8c8a5120cd1.png",
+  "player7.png": "auto/8fd93eaf80d4db2fb88a.png",
+  "player4.png": "auto/a919bb79478c9b96919c.png",
+  "player1.png": "auto/6f80a448bc1d24c7f4f6.png",
   "404.html": "auto/404.html",
-  "login.html": "auto/login.html",
-  "play.html": "auto/play.html"
+  "play.html": "auto/play.html",
+  "login.html": "auto/login.html"
 }

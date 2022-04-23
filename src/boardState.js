@@ -11,6 +11,12 @@ import {
   onSnapshot,
 } from 'firebase/firestore';
 
+import {
+  images
+} from './assets.js';
+
+const TO_RADIANS = Math.PI/180;
+
 // import {
 //   executeProgram,
 //   programToString,
@@ -18,7 +24,7 @@ import {
 
 export class BoardState
 {
-  constructor (round = 0, history = ["~~History~~"], players = new Array({x: 0, y: 0, direction: 'north', nextGoal: 0, isWinner: false}), goals = new Array({x: 6, y: 6}), winner = null)
+  constructor (round = 0, history = ["~~History~~"], players = new Array({x: 0, y: 0, direction: 'north', nextGoal: 0}), goals = new Array({x: 6, y: 6}), winner = null)
   {
     this.round = round;
     this.history = history;
@@ -52,6 +58,77 @@ export class BoardState
     return output + '\n';
   }
 
+  toCanvas(canvas)
+  {
+    // const canvas = document.getElementById("canvas");
+    const cellSize = 60;
+    const ctx = canvas.getContext("2d");
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 1;
+
+    //draw grid
+    for (let i = 0; i <= 10; i++) {
+      const x = i*cellSize;
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
+
+      const y = i*cellSize;
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+
+    //draw images
+    const p = ctx.lineWidth / 2; //padding
+    for (let xCell = 0; xCell < 10; xCell++)
+    {
+      for (let yCell = 0; yCell < 10; yCell++)
+      {
+        const x = xCell * cellSize;
+        const y = yCell * cellSize;
+        const img = new Image();
+        img.onload = function() {
+          ctx.drawImage(img, x+p, y+p, cellSize-p*2, cellSize-p*2);
+        };
+        //TODO: set img.src to your api url instead of the dummyimage url.
+        img.src = images.floor1;
+      }
+    }
+
+    ctx.save();
+    for (let playerNumber = 0; playerNumber < this.players.length; playerNumber++)
+    {
+      const x = this.players[playerNumber].x * cellSize + cellSize/2;
+      const y = this.players[playerNumber].y * cellSize + cellSize/2;
+      ctx.translate(x, y);
+      const img = new Image();
+      //TODO: set img.src to your api url instead of the dummyimage url.
+      img.src = images["player"+playerNumber];
+      switch(this.players[playerNumber].direction)
+      {
+        case 'north':
+          break;
+        case 'south':
+          ctx.rotate(180 * TO_RADIANS);
+          break;
+        case 'east':
+          ctx.rotate(90 * TO_RADIANS);
+          break;
+        case 'west':
+          ctx.rotate(-90 * TO_RADIANS);
+          break;
+        default:
+          console.log("Player direction error");
+      }
+
+      img.onload = function() {
+        ctx.drawImage(img, -cellSize/2, -cellSize/2);
+      };
+      ctx.restore();
+    }
+  }
+
   printHistory()
   {
     let output = '';
@@ -63,7 +140,12 @@ export class BoardState
 
   addPlayer(playerNumber)
   {
-    this.players[playerNumber] = {x: 0, y: 0, direction: 'north', nextGoal: 0};
+    this.players[playerNumber] = {
+      x: 0,
+      y: 0,
+      direction: 'north',
+      nextGoal: 0,
+    };
   }
 
   playerToString(player)
