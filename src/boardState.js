@@ -235,6 +235,22 @@ export class BoardState
             this.players[playerNumber].x -= program.value;
             break;
         }
+        if(this.players[playerNumber].x < 0)
+        {
+          this.players[playerNumber].x = 0;
+        }
+        if(this.players[playerNumber].x >= this.boardSize.x)
+        {
+          this.players[playerNumber].x = this.boardSize.x;
+        }
+        if(this.players[playerNumber].y < 0)
+        {
+          this.players[playerNumber].y = 0;
+        }
+        if(this.players[playerNumber].y >= this.boardSize.y)
+        {
+          this.players[playerNumber].y = this.boardSize.y;
+        }
         break;
       case 'rotate':
         let newDirectionIndex = (directions.indexOf(this.players[playerNumber].direction) + program.value) % 4;
