@@ -15,8 +15,6 @@ import {
   images
 } from './assets.js';
 
-const TO_RADIANS = Math.PI/180;
-
 // import {
 //   executeProgram,
 //   programToString,
@@ -24,9 +22,10 @@ const TO_RADIANS = Math.PI/180;
 
 export class BoardState
 {
-  constructor (round = 0, history = ["~~History~~"], players = new Array({x: 0, y: 0, direction: 'north', nextGoal: 0}), goals = new Array({x: 6, y: 6}), winner = null)
+  constructor (round = 0, phase = 0, history = ["~~History~~"], players = new Array({x: 1, y: 1, direction: 'south', nextGoal: 0}), goals = new Array({x: 6, y: 6}), winner = null)
   {
     this.round = round;
+    this.phase = phase;
     this.history = history;
     this.players = players;
     this.goals = goals;
@@ -72,22 +71,25 @@ export class BoardState
     const cellWidth = canvas.width / this.boardSize.x;
     const cellHeight = canvas.height / this.boardSize.y;
     const ctx = canvas.getContext("2d");
-    ctx.strokeStyle = "87bc78";
+    ctx.strokeStyle = "#87BC78";
+    // ctx.strokeStyle = "green";
     ctx.lineWidth = 1;
     ctx.save();
 
     ctx.beginPath();
     ctx.rect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "1c422b";
+    ctx.fillStyle = "#122A1C";
     ctx.fill();
 
     //draw grid
-    for (let i = 0; i <= 10; i++) {
+    ctx.restore();
+    for (let i = 0; i <= this.boardSize.x; i++) {
       const x = i*cellWidth;
       ctx.moveTo(x, 0);
       ctx.lineTo(x, canvas.height);
       ctx.stroke();
-
+    }
+    for (let i = 0; i <= this.boardSize.y; i++) {
       const y = i*cellHeight;
       ctx.moveTo(0, y);
       ctx.lineTo(canvas.width, y);
@@ -95,52 +97,48 @@ export class BoardState
     }
 
     //draw images
-    const p = ctx.lineWidth / 2; //padding
+    const padding = ctx.lineWidth / 2 + 1; //padding
 
     for (let playerNumber = 0; playerNumber < this.players.length; playerNumber++)
     {
       const x = this.players[playerNumber].x * cellWidth + cellWidth/2;
-      const y = this.players[playerNumber].y * cellHeight + cellHeight/2;
-      ctx.translate(x, y);
-      const img = new Image();
-      //TODO: set img.src to your api url instead of the dummyimage url.
-      img.src = images["player"+playerNumber];
-      switch(this.players[playerNumber].direction)
-      {
-        case 'north':
-          break;
-        case 'south':
-          ctx.rotate(180 * TO_RADIANS);
-          break;
-        case 'east':
-          ctx.rotate(90 * TO_RADIANS);
-          break;
-        case 'west':
-          ctx.rotate(-90 * TO_RADIANS);
-          break;
-        default:
-          console.log("Player direction error");
-      }
+      const y = this.players[playerNumber].y * cellHeight + cellHeight /2;
+      const rotation = this.directionToRotation(this.players[playerNumber].direction);
+      const phase = this.phase;
+      const boardState = this;
 
+      const img = new Image();
+      img.src = images["player"+playerNumber];
       img.onload = function() {
-        ctx.drawImage(img, -cellWidth/2 - p, -cellHeight/2 - p, cellWidth/2 - p, cellHeight/2 - p);
+        if(phase == boardState.phase)
+        {//do not draw if the boardState has moved on to a new phase
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(rotation);
+          ctx.drawImage(img, -cellWidth/2 - padding, -cellHeight/2 - padding, cellWidth - padding, cellHeight - padding);
+          ctx.restore();
+        }
       };
-      ctx.restore();
     }
+    ctx.restore();
 
     for (let goalNumber = 0; goalNumber < this.goals.length; goalNumber++)
     {
-        const x = this.goals[goalNumber].x * cellWidth + cellWidth/2;
-        const y = this.goals[goalNumber].y * cellHeight + cellHeight/2;
+      const x = this.goals[goalNumber].x * cellWidth;
+      const y = this.goals[goalNumber].y * cellHeight;
+
+      const img = new Image();
+      img.src = images["goal"+goalNumber];
+      img.onload = function() {
+        console.log("x: ", x, " y: ", y);
+        ctx.save();
         ctx.translate(x, y);
-        const img = new Image();
-        //TODO: set img.src to your api url instead of the dummyimage url.
-        img.src = images["goal"+goalNumber];
-        img.onload = function() {
-          ctx.drawImage(img, -cellWidth/2 - p, -cellHeight/2 - p, cellWidth/2 - p, cellHeight/2 - p);
-        };
+        ctx.drawImage(img, padding, padding, cellWidth - padding, cellHeight - padding);
         ctx.restore();
+      };
     }
+    ctx.restore();
+
   }
 
   printHistory()
@@ -164,6 +162,24 @@ export class BoardState
       return "Position: ( " + player.x + ", " + player.y + ", " + player.direction + " ), WINNER!";
     }
     return "Position: ( " + player.x + ", " + player.y + ", " + player.direction + " ), Next Goal: " + player.nextGoal;
+  }
+
+  directionToRotation(direction)
+  {
+    const TO_RADIANS = Math.PI/180;
+    switch(direction)
+    {
+      case 'north':
+        return 0;
+      case 'south':
+        return 180 * TO_RADIANS;
+      case 'east':
+        return 90 * TO_RADIANS;
+      case 'west':
+        return -90 * TO_RADIANS;
+      default:
+        console.log("Player direction error");
+    }
   }
 
   goalToString(goal)
@@ -242,14 +258,13 @@ export class BoardState
     this.round++;
     console.log("Executing Round " + this.round);
     this.history.push("Round " + this.round);
-    for(let i = 0; i < this.numberOfPhases; i++)
+    for(this.phase = 0; this.phase < this.numberOfPhases; this.phase++)
     {
-      let phaseSummary = '-Phase ' + i + '\n';
+      let phaseSummary = '-Phase ' + this.phase + '\n';
       programQueues.forEach((programQueue, j) => {
-        // console.log("Player ", j, ": ", programToString(programQueue['phase-'+i]))
         let nextGoal = this.players[j].nextGoal;
-        phaseSummary = phaseSummary + "--Player " + j + ": " + this.playerToString(this.players[j]) + " => " + programToString(programQueue['phase-'+i]) + " => ";
-        this.executeProgram(programQueue['phase-'+i], j);
+        phaseSummary = phaseSummary + "--Player " + j + ": " + this.playerToString(this.players[j]) + " => " + programToString(programQueue['phase-'+this.phase]) + " => ";
+        this.executeProgram(programQueue['phase-'+this.phase], j);
         phaseSummary = phaseSummary + this.playerToString(this.players[j]) + '\n';
         if (nextGoal < this.players[j].nextGoal)
         {
@@ -266,6 +281,7 @@ export class BoardState
       }
       this.boardStateListener();
     }
+    this.phase--;
   }
 
   checkForWinner()
@@ -314,6 +330,7 @@ export const boardStateConverter = {
   toFirestore: (boardState) => {
     return {
       round: boardState.round,
+      phase: boardState.phase,
       history: boardState.history,
       players: boardState.players,
       goals: boardState.goals,
@@ -323,7 +340,7 @@ export const boardStateConverter = {
   fromFirestore: (snapshot, options) =>
   {
     const data = snapshot.data(options);
-    return new BoardState(data.round, data.history, data.players, data.goals, data.winner);
+    return new BoardState(data.round, data.phase, data.history, data.players, data.goals, data.winner);
   }
 }
 
