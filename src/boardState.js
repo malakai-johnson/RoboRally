@@ -33,6 +33,14 @@ export class BoardState
     this.winner = winner;
     this.boardStateListener = function () {console.log("boardStateListener not set, this probably means the bordState is trying to be updated by someone other than the host.");};
 
+    this.boardSize = {x: 13, y: 13};
+    this.spawnPoints = [
+      {x: 1, y: 1, direction: 'south', nextGoal: 0},
+      {x: 1, y: this.boardSize.y - 1, direction: 'west', nextGoal: 0},
+      {x: this.boardSize.x - 1, y: 1, direction: 'east', nextGoal: 0},
+      {x: this.boardSize.x - 1, y: this.boardSize.y - 1, direction: 'north', nextGoal: 0}
+    ];
+
     this.numberOfPhases = 5;
   }
 
@@ -61,19 +69,26 @@ export class BoardState
   toCanvas(canvas)
   {
     // const canvas = document.getElementById("canvas");
-    const cellSize = 60;
+    const cellWidth = canvas.width / this.boardSize.x;
+    const cellHeight = canvas.height / this.boardSize.y;
     const ctx = canvas.getContext("2d");
-    ctx.strokeStyle = "black";
+    ctx.strokeStyle = "87bc78";
     ctx.lineWidth = 1;
+    ctx.save();
+
+    ctx.beginPath();
+    ctx.rect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "1c422b";
+    ctx.fill();
 
     //draw grid
     for (let i = 0; i <= 10; i++) {
-      const x = i*cellSize;
+      const x = i*cellWidth;
       ctx.moveTo(x, 0);
       ctx.lineTo(x, canvas.height);
       ctx.stroke();
 
-      const y = i*cellSize;
+      const y = i*cellHeight;
       ctx.moveTo(0, y);
       ctx.lineTo(canvas.width, y);
       ctx.stroke();
@@ -81,26 +96,11 @@ export class BoardState
 
     //draw images
     const p = ctx.lineWidth / 2; //padding
-    for (let xCell = 0; xCell < 10; xCell++)
-    {
-      for (let yCell = 0; yCell < 10; yCell++)
-      {
-        const x = xCell * cellSize;
-        const y = yCell * cellSize;
-        const img = new Image();
-        img.onload = function() {
-          ctx.drawImage(img, x+p, y+p, cellSize-p*2, cellSize-p*2);
-        };
-        //TODO: set img.src to your api url instead of the dummyimage url.
-        img.src = images.floor1;
-      }
-    }
 
-    ctx.save();
     for (let playerNumber = 0; playerNumber < this.players.length; playerNumber++)
     {
-      const x = this.players[playerNumber].x * cellSize + cellSize/2;
-      const y = this.players[playerNumber].y * cellSize + cellSize/2;
+      const x = this.players[playerNumber].x * cellWidth + cellWidth/2;
+      const y = this.players[playerNumber].y * cellHeight + cellHeight/2;
       ctx.translate(x, y);
       const img = new Image();
       //TODO: set img.src to your api url instead of the dummyimage url.
@@ -123,9 +123,23 @@ export class BoardState
       }
 
       img.onload = function() {
-        ctx.drawImage(img, -cellSize/2, -cellSize/2);
+        ctx.drawImage(img, -cellWidth/2 - p, -cellHeight/2 - p, cellWidth/2 - p, cellHeight/2 - p);
       };
       ctx.restore();
+    }
+
+    for (let goalNumber = 0; goalNumber < this.goals.length; goalNumber++)
+    {
+        const x = this.goals[goalNumber].x * cellWidth + cellWidth/2;
+        const y = this.goals[goalNumber].y * cellHeight + cellHeight/2;
+        ctx.translate(x, y);
+        const img = new Image();
+        //TODO: set img.src to your api url instead of the dummyimage url.
+        img.src = images["goal"+goalNumber];
+        img.onload = function() {
+          ctx.drawImage(img, -cellWidth/2 - p, -cellHeight/2 - p, cellWidth/2 - p, cellHeight/2 - p);
+        };
+        ctx.restore();
     }
   }
 
@@ -140,12 +154,7 @@ export class BoardState
 
   addPlayer(playerNumber)
   {
-    this.players[playerNumber] = {
-      x: 0,
-      y: 0,
-      direction: 'north',
-      nextGoal: 0,
-    };
+    this.players[playerNumber] = this.spawnPoints[playerNumber % this.spawnPoints.length];
   }
 
   playerToString(player)

@@ -49,7 +49,7 @@ import {
 
 async function main()
 {
-  console.log("begin player.js");
+  // console.log("begin player.js");
   const gameid = localStorage.getItem("gameid");
   if(gameid == null){
     console.log("gameid undefined");
@@ -70,6 +70,7 @@ async function main()
 
   const gameDocRef = doc(database, 'Games', gameid);
   const gameDocSnap = await getDoc(gameDocRef);
+  const maxPlayerCount = 4;
 
   console.log("Game ID: " + gameid);
   const gameDetails = document.getElementById("game-details");
@@ -89,6 +90,32 @@ async function main()
   }
   gameDetails.appendChild(detailsHost);
 
+  //get and keep up to date playerNumber
+  let playerNumber = gameDocSnap.data().playerList.findIndex(playerEntry => {
+    return playerEntry.userID == auth.currentUser.uid;
+  });
+  let playerCount = gameDocSnap.data().playerList.length;
+
+  const detailsPlayerNumber = document.createElement('p');
+  detailsPlayerNumber.textContent = "You are player number " + playerNumber + " of " + playerCount + " total players";
+  gameDetails.appendChild(detailsPlayerNumber);
+
+  const onGameDocChange = onSnapshot(gameDocRef, (newGameDoc) => {
+    playerNumber = newGameDoc.data().playerList.findIndex(playerEntry => {
+      return playerEntry.userID == auth.currentUser.uid;
+    });
+    playerCount = newGameDoc.data().playerList.length;
+    detailsPlayerNumber.textContent = "You are player number " + playerNumber + " of " + playerCount + " total players";
+  });
+
+  if (playerNumber < && playerCount < maxPlayerCount)
+  {
+    await updateDoc(gameDocRef, {
+      playerList: arrayUnion({userId: auth.currentUser.uid, username: auth.currentUser.displayName})
+    });
+  }
+
+
   //Set up boardState management
   const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
   const boardStateDocSnap = await getDoc(boardStateDocRef);
@@ -106,6 +133,7 @@ async function main()
   }
   else
   {//if the current user is not Host, update the local boardState with ever database change
+    boardState.onBoardStateChange(function() {});
     const onBoardStateDocChange = onSnapshot(boardStateDocRef, (newBoardState) => {
       boardState = newBoardState.data();
       displayGameBoard(boardState);
@@ -118,18 +146,7 @@ async function main()
   const playersReadyDocSnap = await getDoc(playersReadyDocRef);
 
 
-  let playerNumber = gameDocSnap.data().playerList.findIndex(playerEntry => {
-    return playerEntry.userId == auth.currentUser.uid;
-  });
-  if (playerNumber < 0)
-  {
-    await updateDoc(gameDocRef, {
-      playerList: arrayUnion({userId: auth.currentUser.uid, username: auth.currentUser.displayName})
-    });
-    playerNumber = gameDocSnap.data().playerList.findIndex(playerEntry => {
-      return playerEntry.userId == auth.currentUser.uid;
-    });
-  }
+
 
 
   const programUI = document.getElementById('program-ui');
@@ -154,12 +171,13 @@ async function main()
     else {
       console.log("Player not ready.");
       programUI.style.display = 'block';
+      messageCenter.textContent = "";
       setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, false, player.queueToFirestore());
     }
   });
 
   const onReadyChange = onSnapshot(playersReadyDocRef, (doc) => {
-    if(!doc.data().isReadyList[player.playerNumber])
+    if(player.isReady && !doc.data().isReadyList[player.playerNumber])
     {
       player.readyDown();
     }

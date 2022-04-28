@@ -131,7 +131,7 @@ async function main()
     // Prevent the default form redirect
     e.preventDefault();
     // Write a new message to the database collection "guestbook"
-    const maxPlayerCount = 5;
+    const maxPlayerCount = 4;
     const newGame = doc(database, 'Games', inputGameid.value);
     let newGameSnap = await getDoc(newGame);
 
