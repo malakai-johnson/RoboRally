@@ -11,6 +11,10 @@ import {
   onSnapshot,
 } from 'firebase/firestore';
 
+import {
+  images
+} from './assets.js';
+
 // import {
 //   executeProgram,
 //   programToString,
@@ -18,14 +22,23 @@ import {
 
 export class BoardState
 {
-  constructor (round = 0, history = ["~~History~~"], players = new Array({x: 0, y: 0, direction: 'north', nextGoal: 0, isWinner: false}), goals = new Array({x: 6, y: 6}), winner = null)
+  constructor (round = 0, phase = 0, history = ["~~History~~"], players = new Array({x: 1, y: 1, direction: 'south', nextGoal: 0}), goals = new Array({x: 6, y: 6}), winner = null)
   {
     this.round = round;
+    this.phase = phase;
     this.history = history;
     this.players = players;
     this.goals = goals;
     this.winner = winner;
     this.boardStateListener = function () {console.log("boardStateListener not set, this probably means the bordState is trying to be updated by someone other than the host.");};
+
+    this.boardSize = {x: 13, y: 13};
+    this.spawnPoints = [
+      {x: 1, y: 1, direction: 'south', nextGoal: 0},
+      {x: 1, y: this.boardSize.y - 1, direction: 'west', nextGoal: 0},
+      {x: this.boardSize.x - 1, y: 1, direction: 'east', nextGoal: 0},
+      {x: this.boardSize.x - 1, y: this.boardSize.y - 1, direction: 'north', nextGoal: 0}
+    ];
 
     this.numberOfPhases = 5;
   }
@@ -52,6 +65,82 @@ export class BoardState
     return output + '\n';
   }
 
+  toCanvas(canvas)
+  {
+    // const canvas = document.getElementById("canvas");
+    const cellWidth = canvas.width / this.boardSize.x;
+    const cellHeight = canvas.height / this.boardSize.y;
+    const ctx = canvas.getContext("2d");
+    ctx.strokeStyle = "#87BC78";
+    // ctx.strokeStyle = "green";
+    ctx.lineWidth = 1;
+    ctx.save();
+
+    ctx.beginPath();
+    ctx.rect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#122A1C";
+    ctx.fill();
+
+    //draw grid
+    ctx.restore();
+    for (let i = 0; i <= this.boardSize.x; i++) {
+      const x = i*cellWidth;
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
+    }
+    for (let i = 0; i <= this.boardSize.y; i++) {
+      const y = i*cellHeight;
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+
+    //draw images
+    const padding = ctx.lineWidth / 2 + 1; //padding
+
+    for (let playerNumber = 0; playerNumber < this.players.length; playerNumber++)
+    {
+      const x = this.players[playerNumber].x * cellWidth + cellWidth/2;
+      const y = this.players[playerNumber].y * cellHeight + cellHeight /2;
+      const rotation = this.directionToRotation(this.players[playerNumber].direction);
+      const phase = this.phase;
+      const boardState = this;
+
+      const img = new Image();
+      img.src = images["player"+playerNumber];
+      img.onload = function() {
+        if(phase == boardState.phase)
+        {//do not draw if the boardState has moved on to a new phase
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(rotation);
+          ctx.drawImage(img, -cellWidth/2 - padding, -cellHeight/2 - padding, cellWidth - padding, cellHeight - padding);
+          ctx.restore();
+        }
+      };
+    }
+    ctx.restore();
+
+    for (let goalNumber = 0; goalNumber < this.goals.length; goalNumber++)
+    {
+      const x = this.goals[goalNumber].x * cellWidth;
+      const y = this.goals[goalNumber].y * cellHeight;
+
+      const img = new Image();
+      img.src = images["goal"+goalNumber];
+      img.onload = function() {
+        console.log("x: ", x, " y: ", y);
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.drawImage(img, padding, padding, cellWidth - padding, cellHeight - padding);
+        ctx.restore();
+      };
+    }
+    ctx.restore();
+
+  }
+
   printHistory()
   {
     let output = '';
@@ -63,7 +152,7 @@ export class BoardState
 
   addPlayer(playerNumber)
   {
-    this.players[playerNumber] = {x: 0, y: 0, direction: 'north', nextGoal: 0};
+    this.players[playerNumber] = this.spawnPoints[playerNumber % this.spawnPoints.length];
   }
 
   playerToString(player)
@@ -73,6 +162,24 @@ export class BoardState
       return "Position: ( " + player.x + ", " + player.y + ", " + player.direction + " ), WINNER!";
     }
     return "Position: ( " + player.x + ", " + player.y + ", " + player.direction + " ), Next Goal: " + player.nextGoal;
+  }
+
+  directionToRotation(direction)
+  {
+    const TO_RADIANS = Math.PI/180;
+    switch(direction)
+    {
+      case 'north':
+        return 0;
+      case 'south':
+        return 180 * TO_RADIANS;
+      case 'east':
+        return 90 * TO_RADIANS;
+      case 'west':
+        return -90 * TO_RADIANS;
+      default:
+        console.log("Player direction error");
+    }
   }
 
   goalToString(goal)
@@ -128,6 +235,26 @@ export class BoardState
             this.players[playerNumber].x -= program.value;
             break;
         }
+        if(this.players[playerNumber].x < 0)
+        {
+          console.log("Cannot leave board!");
+          this.players[playerNumber].x = 0;
+        }
+        if(this.players[playerNumber].x >= this.boardSize.x)
+        {
+          console.log("Cannot leave board!");
+          this.players[playerNumber].x = this.boardSize.x;
+        }
+        if(this.players[playerNumber].y < 0)
+        {
+          console.log("Cannot leave board!");
+          this.players[playerNumber].y = 0;
+        }
+        if(this.players[playerNumber].y >= this.boardSize.y)
+        {
+          console.log("Cannot leave board!");
+          this.players[playerNumber].y = this.boardSize.y;
+        }
         break;
       case 'rotate':
         let newDirectionIndex = (directions.indexOf(this.players[playerNumber].direction) + program.value) % 4;
@@ -151,14 +278,13 @@ export class BoardState
     this.round++;
     console.log("Executing Round " + this.round);
     this.history.push("Round " + this.round);
-    for(let i = 0; i < this.numberOfPhases; i++)
+    for(this.phase = 0; this.phase < this.numberOfPhases; this.phase++)
     {
-      let phaseSummary = '-Phase ' + i + '\n';
+      let phaseSummary = '-Phase ' + this.phase + '\n';
       programQueues.forEach((programQueue, j) => {
-        // console.log("Player ", j, ": ", programToString(programQueue['phase-'+i]))
         let nextGoal = this.players[j].nextGoal;
-        phaseSummary = phaseSummary + "--Player " + j + ": " + this.playerToString(this.players[j]) + " => " + programToString(programQueue['phase-'+i]) + " => ";
-        this.executeProgram(programQueue['phase-'+i], j);
+        phaseSummary = phaseSummary + "--Player " + j + ": " + this.playerToString(this.players[j]) + " => " + programToString(programQueue['phase-'+this.phase]) + " => ";
+        this.executeProgram(programQueue['phase-'+this.phase], j);
         phaseSummary = phaseSummary + this.playerToString(this.players[j]) + '\n';
         if (nextGoal < this.players[j].nextGoal)
         {
@@ -175,6 +301,7 @@ export class BoardState
       }
       this.boardStateListener();
     }
+    this.phase--;
   }
 
   checkForWinner()
@@ -223,6 +350,7 @@ export const boardStateConverter = {
   toFirestore: (boardState) => {
     return {
       round: boardState.round,
+      phase: boardState.phase,
       history: boardState.history,
       players: boardState.players,
       goals: boardState.goals,
@@ -232,7 +360,7 @@ export const boardStateConverter = {
   fromFirestore: (snapshot, options) =>
   {
     const data = snapshot.data(options);
-    return new BoardState(data.round, data.history, data.players, data.goals, data.winner);
+    return new BoardState(data.round, data.phase, data.history, data.players, data.goals, data.winner);
   }
 }
 

@@ -1,5 +1,7 @@
 import { getFirebaseConfig } from './firebaseConfig.js'
 
+import css from './style.css'
+
 import {
   gameManagement,
 } from './host.js'
@@ -184,6 +186,9 @@ async function displayGameBoard(boardState)
     const gameboard = document.getElementById("board");
     console.log(boardState.toString())
     gameboard.textContent = boardState.toString();
+
+    const canvas = document.getElementById("canvas");
+    boardState.toCanvas(canvas);
 
     const eventFeed = document.getElementById('event-feed');
     eventFeed.textContent = boardState.printHistory();

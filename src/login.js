@@ -1,5 +1,7 @@
 //This will be the script which manages the landing page where players can start or join a game
-import html from "./login.html"
+// import html from "./login.html"
+
+import css from './style.css'
 
 import { getFirebaseConfig } from './firebaseConfig.js'
 
@@ -131,7 +133,7 @@ async function main()
     // Prevent the default form redirect
     e.preventDefault();
     // Write a new message to the database collection "guestbook"
-    const maxPlayerCount = 5;
+    const maxPlayerCount = 4;
     const newGame = doc(database, 'Games', inputGameid.value);
     let newGameSnap = await getDoc(newGame);
 
