@@ -1,5 +1,7 @@
 //This will be the script which manages the landing page where players can start or join a game
-import html from "./login.html"
+// import html from "./login.html"
+
+import css from './style.css'
 
 import { getFirebaseConfig } from './firebaseConfig.js'
 

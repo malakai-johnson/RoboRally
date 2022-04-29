@@ -1,0 +1,35 @@
+body {
+  background-color: black;
+  color: #87BC78;
+  font-family: "Monospace Bold", "Lucida Console Bold", monospace;
+  font-weight: bold;
+  font-size: 1.3em; /* 1em=16px */
+}
+
+button {
+  border-radius: 8px;
+  background-color: #1C422B;
+  color: #87BC78;
+  border: 2px solid #87BC78;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+  font-size: 1.3em;
+}
+button:hover {
+  border-radius: 8px;
+  background-color: #87BC78;
+  color: #1C422B;
+  border: 2px solid #1C422B;
+}
+
+button:active {
+  border-radius: 8px;
+  background-color: #1C422B;
+  color: #1C422B;
+  border: 2px solid #1C422B;
+}
+
+input {
+  background-color: #87BC78;
+  color: #1C422B;
+  font-size: 1.3em;
+}

@@ -237,18 +237,22 @@ export class BoardState
         }
         if(this.players[playerNumber].x < 0)
         {
+          console.log("Cannot leave board!");
           this.players[playerNumber].x = 0;
         }
         if(this.players[playerNumber].x >= this.boardSize.x)
         {
+          console.log("Cannot leave board!");
           this.players[playerNumber].x = this.boardSize.x;
         }
         if(this.players[playerNumber].y < 0)
         {
+          console.log("Cannot leave board!");
           this.players[playerNumber].y = 0;
         }
         if(this.players[playerNumber].y >= this.boardSize.y)
         {
+          console.log("Cannot leave board!");
           this.players[playerNumber].y = this.boardSize.y;
         }
         break;

@@ -1,5 +1,7 @@
 import { getFirebaseConfig } from './firebaseConfig.js'
 
+import css from './style.css'
+
 import {
   gameManagement,
 } from './host.js'
