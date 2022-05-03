@@ -79,21 +79,28 @@ async function main()
   detailsGameID.textContent = "Game ID: " + gameid;
   gameDetails.appendChild(detailsGameID);
 
-  const playerListElement = document.getElementById('playerList');
+  const playerListElement = document.getElementById('player-list');
+  let playerListString = '';
+  gameDocSnap.data().playerList.forEach((player, i) => {
+    playerListString = playerListString + "Player " + i + ": " + player.username + "\n";
+  });
+  playerListElement.textContent = playerListString;
+
   const gameElement = document.getElementById('game');
 
   let playerNumber = gameDocSnap.data().playerList.findIndex(playerEntry => {
     return playerEntry.userId == auth.currentUser.uid;
   });
 
+
   const onGameDocChange = onSnapshot(gameDocRef, async (doc) => {
     let playerListString = '';
-    doc.playerList.forEach((player, i) => {
+    doc.data().playerList.forEach((player, i) => {
       playerListString = playerListString + "Player " + i + ": " + player.username + "\n";
     });
     playerListElement.textContent = playerListString;
 
-    if (doc.isStarted)
+    if (doc.data().isStarted)
     {
       gameElement.style.display = 'block';
     }
@@ -108,7 +115,7 @@ async function main()
   });
 
   //Check if the current user is the host
-  let isHost = localStorage.getItem("gameid");
+  let isHost = localStorage.getItem("isHost");
   const detailsHost = document.createElement('p');
   // if(gameDocSnap.data().hostUserId == auth.currentUser.uid){
   if(isHost){
@@ -128,7 +135,9 @@ async function main()
       await updateDoc(gameDocRef, {
         isStarted: true
       });
+      allInButton.style.display = 'none';
     });
+    hostControls.appendChild(allInButton);
   }
   else
   {
