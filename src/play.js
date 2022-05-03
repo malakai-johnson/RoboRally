@@ -79,28 +79,61 @@ async function main()
   detailsGameID.textContent = "Game ID: " + gameid;
   gameDetails.appendChild(detailsGameID);
 
-  //display player list with names
   const playerListElement = document.getElementById('playerList');
+  const gameElement = document.getElementById('game');
+
+  let playerNumber = gameDocSnap.data().playerList.findIndex(playerEntry => {
+    return playerEntry.userId == auth.currentUser.uid;
+  });
+
   const onGameDocChange = onSnapshot(gameDocRef, async (doc) => {
     let playerListString = '';
     doc.playerList.forEach((player, i) => {
       playerListString = playerListString + "Player " + i + ": " + player.username + "\n";
     });
     playerListElement.textContent = playerListString;
+
+    if (doc.isStarted)
+    {
+      gameElement.style.display = 'block';
+    }
+    else
+    {
+      gameElement.style.display = 'none';
+    }
+
+    playerNumber = doc.data().playerList.findIndex(playerEntry => {
+      return playerEntry.userId == auth.currentUser.uid;
+    });
   });
 
   //Check if the current user is the host
   let isHost = localStorage.getItem("gameid");
   const detailsHost = document.createElement('p');
-  if(gameDocSnap.data().hostUserId == auth.currentUser.uid){
+  // if(gameDocSnap.data().hostUserId == auth.currentUser.uid){
+  if(isHost){
     detailsHost.textContent = "You are the host";
-    isHost = true;
   }else {
     detailsHost.textContent = "You are NOT the host. The host is: " + gameDocSnap.data().hostDisplayName;
-    isHost = false;
   }
   gameDetails.appendChild(detailsHost);
 
+  const hostControls = document.getElementById("host-controls");
+  if(isHost)
+  {
+    hostControls.style.display = 'block';
+    const allInButton = document.createElement('button');
+    allInButton.textContent = "Start Game!";
+    allInButton.addEventListener('click', async function() {
+      await updateDoc(gameDocRef, {
+        isStarted: true
+      });
+    });
+  }
+  else
+  {
+    hostControls.style.display = 'none';
+  }
   //Set up boardState management
   const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
   const boardStateDocSnap = await getDoc(boardStateDocRef);
@@ -130,18 +163,18 @@ async function main()
   const playersReadyDocSnap = await getDoc(playersReadyDocRef);
 
 
-  let playerNumber = gameDocSnap.data().playerList.findIndex(playerEntry => {
-    return playerEntry.userId == auth.currentUser.uid;
-  });
-  if (playerNumber < 0)
-  {
-    await updateDoc(gameDocRef, {
-      playerList: arrayUnion({userId: auth.currentUser.uid, username: auth.currentUser.displayName})
-    });
-    playerNumber = gameDocSnap.data().playerList.findIndex(playerEntry => {
-      return playerEntry.userId == auth.currentUser.uid;
-    });
-  }
+  // let playerNumber = gameDocSnap.data().playerList.findIndex(playerEntry => {
+  //   return playerEntry.userId == auth.currentUser.uid;
+  // });
+  // if (playerNumber < 0)
+  // {
+  //   await updateDoc(gameDocRef, {
+  //     playerList: arrayUnion({userId: auth.currentUser.uid, username: auth.currentUser.displayName})
+  //   });
+  //   playerNumber = gameDocSnap.data().playerList.findIndex(playerEntry => {
+  //     return playerEntry.userId == auth.currentUser.uid;
+  //   });
+  // }
 
 
   const programUI = document.getElementById('program-ui');

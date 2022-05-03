@@ -155,7 +155,7 @@ async function main()
         localStorage.setItem("isHost", false);
         location.href = '/play.html';
       }
-      else if (newGameSnap.data().playerList.length < maxPlayerCount)
+      else if ( !newGameSnap.data().isStarted && newGameSnap.data().playerList.length < maxPlayerCount)
       {
         joinGame(database, auth, inputGameid.value, newGame);
         console.log("You have joined this game, redirecting...");
@@ -165,9 +165,9 @@ async function main()
       }
       else
       {
-        console.log("The game with gameid '" + inputGameid.value + "' is full.");
+        console.log("The game with gameid '" + inputGameid.value + "' is closed.");
         const newGameCreationMessage = document.createElement('p');
-        newGameCreationMessage.textContent = "The game with gameid '" + inputGameid.value + "' is full.";
+        newGameCreationMessage.textContent = "The game with gameid '" + inputGameid.value + "' is closed.";
         gameCreationMessages.appendChild(newGameCreationMessage);
       }
 
@@ -204,6 +204,7 @@ function initializeGame(database, auth, gameid, gameDoc)
     hostUserId: auth.currentUser.uid,
     hostDisplayName: auth.currentUser.displayName,
     timestamp: Date.now(),
+    isStarted: false,
     playerList: [{userId: auth.currentUser.uid, username: auth.currentUser.displayName}],
   });
   const boardState = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
