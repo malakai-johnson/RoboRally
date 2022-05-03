@@ -79,8 +79,18 @@ async function main()
   detailsGameID.textContent = "Game ID: " + gameid;
   gameDetails.appendChild(detailsGameID);
 
+  //display player list with names
+  const playerListElement = document.getElementById('playerList');
+  const onGameDocChange = onSnapshot(gameDocRef, async (doc) => {
+    let playerListString = '';
+    doc.playerList.forEach((player, i) => {
+      playerListString = playerListString + "Player " + i + ": " + player.username + "\n";
+    });
+    playerListElement.textContent = playerListString;
+  });
+
   //Check if the current user is the host
-  let isHost = false;
+  let isHost = localStorage.getItem("gameid");
   const detailsHost = document.createElement('p');
   if(gameDocSnap.data().hostUserId == auth.currentUser.uid){
     detailsHost.textContent = "You are the host";

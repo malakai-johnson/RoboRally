@@ -145,12 +145,14 @@ async function main()
       {
         console.log("You own this game, redirecting...");
         localStorage.setItem("gameid", inputGameid.value);
+        localStorage.setItem("isHost", true);
         location.href = '/play.html';
       }
       else if (newGameSnap.data().playerList.some(player => auth.currentUser.uid == player.userId))
       {
         console.log("You are in this game, redirecting...");
         localStorage.setItem("gameid", inputGameid.value);
+        localStorage.setItem("isHost", false);
         location.href = '/play.html';
       }
       else if (newGameSnap.data().playerList.length < maxPlayerCount)
@@ -158,6 +160,7 @@ async function main()
         joinGame(database, auth, inputGameid.value, newGame);
         console.log("You have joined this game, redirecting...");
         localStorage.setItem("gameid", inputGameid.value);
+        localStorage.setItem("isHost", false);
         location.href = '/play.html';
       }
       else
@@ -172,6 +175,7 @@ async function main()
     }else {
       initializeGame(database, auth, inputGameid.value, newGame);
       localStorage.setItem("gameid", inputGameid.value);
+      localStorage.setItem("isHost", true);
       const newGameCreationMessage = document.createElement('p');
 
       newGameSnap = await getDoc(newGame);
