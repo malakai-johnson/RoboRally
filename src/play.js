@@ -51,12 +51,13 @@ import {
 
 async function main()
 {
-  console.log("begin player.js");
+  console.log("start");
   const gameid = localStorage.getItem("gameid");
   if(gameid == null){
     console.log("gameid undefined");
     location.href = '/login.html';
   }
+  console.log("localStorage isHost: " + localStorage.getItem("isHost"))
 
   const app = initializeApp(getFirebaseConfig());
   let auth = getAuth();
@@ -70,14 +71,30 @@ async function main()
     console.log('auth was not created');
   }
 
+  if(auth.currentUser)
+  {
+    console.log("Your User Name: " + auth.currentUser.displayName);
+  }
+  else
+  {
+    console.log("Not logged in.");
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("You are now logged in. Username: " + auth.currentUser.displayName);
+    } else {
+      console.log("Logged out.");
+    }
+  });
+
+
   const gameDocRef = doc(database, 'Games', gameid);
   const gameDocSnap = await getDoc(gameDocRef);
 
   console.log("Game ID: " + gameid);
-  const gameDetails = document.getElementById("game-details");
-  const detailsGameID = document.createElement('p');
+  const detailsGameID = document.getElementById("game-id");
   detailsGameID.textContent = "Game ID: " + gameid;
-  gameDetails.appendChild(detailsGameID);
 
   const playerListElement = document.getElementById('player-list');
   let playerListString = '';
@@ -91,7 +108,11 @@ async function main()
   let playerNumber = gameDocSnap.data().playerList.findIndex(playerEntry => {
     return playerEntry.userId == auth.currentUser.uid;
   });
+  let numberOfPlayers = gameDocSnap.data().playerList.length;
+  let gameStarted = gameDocSnap.data().isStarted;
 
+  const detailsPlayerNumber = document.getElementById('player-number');
+  detailsPlayerNumber.textContent = "You are Player " + playerNumber;
 
   const onGameDocChange = onSnapshot(gameDocRef, async (doc) => {
     let playerListString = '';
@@ -100,7 +121,8 @@ async function main()
     });
     playerListElement.textContent = playerListString;
 
-    if (doc.data().isStarted)
+    gameStarted = doc.data().isStarted;
+    if (gameStarted)
     {
       gameElement.style.display = 'block';
     }
@@ -109,47 +131,63 @@ async function main()
       gameElement.style.display = 'none';
     }
 
-    playerNumber = doc.data().playerList.findIndex(playerEntry => {
-      return playerEntry.userId == auth.currentUser.uid;
-    });
+    if(auth.currentUser)
+    {
+      playerNumber = doc.data().playerList.findIndex(playerEntry => {
+        return playerEntry.userId == auth.currentUser.uid;
+      });
+      detailsPlayerNumber.textContent = "You are Player " + playerNumber;
+    }
+    else
+    {
+      console.log("Could not find Player Number because you are not logged in.");
+    }
+    numberOfPlayers = doc.data().playerList.length;
   });
 
+
   //Check if the current user is the host
-  let isHost = localStorage.getItem("isHost");
-  const detailsHost = document.createElement('p');
+  let isHost = localStorage.getItem("isHost") == "true";
+  console.log("isHost: " + isHost + "(" + typeof(isHost) + ")");
+  const detailsHost = document.getElementById('is-host');
   // if(gameDocSnap.data().hostUserId == auth.currentUser.uid){
-  if(isHost){
+  if(isHost === true){
     detailsHost.textContent = "You are the host";
+    if(auth.currentUser.uid != gameDocSnap.data().hostUserId)
+    {
+      console.log("ERROR: You are hosting, but are not the host. host is: " + gameDocSnap.data().hostDisplayName);
+    }
   }else {
     detailsHost.textContent = "You are NOT the host. The host is: " + gameDocSnap.data().hostDisplayName;
   }
-  gameDetails.appendChild(detailsHost);
 
-  const hostControls = document.getElementById("host-controls");
-  if(isHost)
-  {
-    hostControls.style.display = 'block';
-    const allInButton = document.createElement('button');
-    allInButton.textContent = "Start Game!";
-    allInButton.addEventListener('click', async function() {
-      await updateDoc(gameDocRef, {
-        isStarted: true
-      });
-      allInButton.style.display = 'none';
-    });
-    hostControls.appendChild(allInButton);
-  }
-  else
-  {
-    hostControls.style.display = 'none';
-  }
   //Set up boardState management
   const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
   const boardStateDocSnap = await getDoc(boardStateDocRef);
   let boardState = boardStateDocSnap.data();
   displayGameBoard(boardState);
 
-  if(isHost)
+  const hostControls = document.getElementById("host-controls");
+  if(isHost === true)
+  {
+    hostControls.style.display = 'block';
+    if(!gameStarted)
+    {
+      const allInButton = document.createElement('button');
+      allInButton.textContent = "Start Game!";
+      allInButton.addEventListener('click', async function() {
+        startGame(gameDocRef, boardState, numberOfPlayers);
+        allInButton.style.display = 'none';
+      });
+      hostControls.appendChild(allInButton);
+    }
+  }
+  else
+  {
+    hostControls.style.display = 'none';
+  }
+
+  if(isHost === true)
   {//if current user isHost, update the database with every change to the local boardState
     boardState.onBoardStateChange(function() {
       console.log("Updating boardStateDoc")
@@ -169,22 +207,7 @@ async function main()
   // let isHost = checkIsHost(gameDetails, gameDocSnap.data().hostUserId, gameDocSnap.data().hostDisplayName, auth.currentUser.uid, boardState);
 
   const playersReadyDocRef = doc(database, 'Games', gameid, 'Board', 'playersReady');
-  const playersReadyDocSnap = await getDoc(playersReadyDocRef);
-
-
-  // let playerNumber = gameDocSnap.data().playerList.findIndex(playerEntry => {
-  //   return playerEntry.userId == auth.currentUser.uid;
-  // });
-  // if (playerNumber < 0)
-  // {
-  //   await updateDoc(gameDocRef, {
-  //     playerList: arrayUnion({userId: auth.currentUser.uid, username: auth.currentUser.displayName})
-  //   });
-  //   playerNumber = gameDocSnap.data().playerList.findIndex(playerEntry => {
-  //     return playerEntry.userId == auth.currentUser.uid;
-  //   });
-  // }
-
+  let playersReadyDocSnap = await getDoc(playersReadyDocRef);
 
   const programUI = document.getElementById('program-ui');
   const eventFeed = document.getElementById('event-feed');
@@ -203,12 +226,13 @@ async function main()
       programUI.style.display = 'none';
       messageCenter.textContent = "Ready. Waiting on other Players.";
       console.log("Ready. Waiting on other Players.");
+      player.queueString();
       setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, true, player.queueToFirestore());
     }
     else {
       console.log("Player not ready.");
       programUI.style.display = 'block';
-      setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, false, player.queueToFirestore());
+      // setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, false, player.queueToFirestore());
     }
   });
 
@@ -217,6 +241,7 @@ async function main()
     {
       player.readyDown();
     }
+    playersReadyDocSnap = doc;
   });
 
   // let playersReadyList = playersReadyDocSnap.data().readyList;
@@ -304,4 +329,16 @@ function newProgramButton(buttonId, program, player)
 
   programSection.appendChild(programButton);
   return programButton
+}
+
+async function startGame(gameDocRef, boardState, numberOfPlayers)
+{
+  await updateDoc(gameDocRef, {
+    isStarted: true
+  });
+
+  for(let i = 1; i < numberOfPlayers; i++)
+  {
+    boardState.addPlayer(i);
+  }
 }

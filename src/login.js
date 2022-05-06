@@ -147,6 +147,7 @@ async function main()
         localStorage.setItem("gameid", inputGameid.value);
         localStorage.setItem("isHost", true);
         location.href = '/play.html';
+        // window.open('/play.html', '_blank');
       }
       else if (newGameSnap.data().playerList.some(player => auth.currentUser.uid == player.userId))
       {
@@ -154,14 +155,16 @@ async function main()
         localStorage.setItem("gameid", inputGameid.value);
         localStorage.setItem("isHost", false);
         location.href = '/play.html';
+        // window.open('/play.html', '_blank');
       }
       else if ( !newGameSnap.data().isStarted && newGameSnap.data().playerList.length < maxPlayerCount)
       {
-        joinGame(database, auth, inputGameid.value, newGame);
+        await joinGame(database, auth, inputGameid.value, newGame);
         console.log("You have joined this game, redirecting...");
         localStorage.setItem("gameid", inputGameid.value);
         localStorage.setItem("isHost", false);
         location.href = '/play.html';
+        // window.open('/play.html', '_blank');
       }
       else
       {
@@ -173,7 +176,7 @@ async function main()
 
 
     }else {
-      initializeGame(database, auth, inputGameid.value, newGame);
+      await initializeGame(database, auth, inputGameid.value, newGame);
       localStorage.setItem("gameid", inputGameid.value);
       localStorage.setItem("isHost", true);
       const newGameCreationMessage = document.createElement('p');
@@ -183,6 +186,7 @@ async function main()
         newGameCreationMessage.textContent = "Created new game with gameid: '" + inputGameid.value + "'";
         gameCreationMessages.appendChild(newGameCreationMessage);
         location.href = '/play.html';
+        // window.open('/play.html', '_blank');
       }
       else {
           newGameCreationMessage.textContent = "Failed to create new game with gameid: '" + inputGameid.value + "'";
@@ -226,11 +230,11 @@ async function joinGame(database, auth, gameid, gameDoc)
     playerList: newPlayerList,
   });
 
-  const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
-  const boardStateSnap = await getDoc(boardStateDocRef);
-  const boardState = boardStateSnap.data();
-  boardState.addPlayer(playerNumber);
-  setDoc(boardStateDocRef, boardState);
+  // const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
+  // const boardStateSnap = await getDoc(boardStateDocRef);
+  // const boardState = boardStateSnap.data();
+  // boardState.addPlayer(playerNumber);
+  // setDoc(boardStateDocRef, boardState);
 
   const playersReadyDocRef = doc(database, 'Games', gameid, 'Board', 'playersReady');
   const playersReadyDocSnap = await getDoc(playersReadyDocRef);
