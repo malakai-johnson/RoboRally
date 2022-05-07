@@ -8,7 +8,8 @@ import { getFirebaseConfig } from './firebaseConfig.js'
 import {
   BoardState,
   boardStateConverter,
-  getBoardState
+  getBoardState,
+  dealProgramHands,
 } from './boardState.js'
 
 // Firebase App (the core Firebase SDK) is always required
@@ -176,22 +177,26 @@ async function main()
 
 
     }else {
-      await initializeGame(database, auth, inputGameid.value, newGame);
-      localStorage.setItem("gameid", inputGameid.value);
-      localStorage.setItem("isHost", true);
-      const newGameCreationMessage = document.createElement('p');
+      initializeGame(database, auth, inputGameid.value, newGame).then(
+        async function(value)
+        {
+          localStorage.setItem("gameid", inputGameid.value);
+          localStorage.setItem("isHost", true);
+          const newGameCreationMessage = document.createElement('p');
 
-      newGameSnap = await getDoc(newGame);
-      if(newGameSnap.exists()){
-        newGameCreationMessage.textContent = "Created new game with gameid: '" + inputGameid.value + "'";
-        gameCreationMessages.appendChild(newGameCreationMessage);
-        location.href = '/play.html';
-        // window.open('/play.html', '_blank');
-      }
-      else {
-          newGameCreationMessage.textContent = "Failed to create new game with gameid: '" + inputGameid.value + "'";
-          gameCreationMessages.appendChild(newGameCreationMessage);
-      }
+          newGameSnap = await getDoc(newGame);
+          if(newGameSnap.exists()){
+            newGameCreationMessage.textContent = "Created new game with gameid: '" + inputGameid.value + "'";
+            gameCreationMessages.appendChild(newGameCreationMessage);
+            location.href = '/play.html';
+            // window.open('/play.html', '_blank');
+          }
+          else {
+              newGameCreationMessage.textContent = "Failed to create new game with gameid: '" + inputGameid.value + "'";
+              gameCreationMessages.appendChild(newGameCreationMessage);
+          }
+        }
+      );
     }
     // clear message input field
     inputGameid.value = '';
@@ -201,7 +206,7 @@ async function main()
 }
 main();
 
-function initializeGame(database, auth, gameid, gameDoc)
+async function initializeGame(database, auth, gameid, gameDoc)
 {
   setDoc(gameDoc, {
     gameid: gameid,
@@ -218,6 +223,7 @@ function initializeGame(database, auth, gameid, gameDoc)
     winner: null,
     isReadyList: [false],
     programQueues: new Array(),
+    programHands: dealProgramHands(),
   });
 }
 

@@ -249,9 +249,11 @@ async function main()
       programUI.style.display = 'none';
       messageCenter.textContent = "Player " + doc.data().winner + " has won!";
     }
-    if(!doc.data().isReadyList[player.playerNumber])
+    if(!doc.data().isReadyList[player.playerNumber] && player.isReady)
     {
+      player.updateHand(doc.data().programHands[player.playerNumber]);
       player.readyDown();
+      refreshHand(player);
     }
     playersReadyDocSnap = doc;
   });
@@ -309,11 +311,16 @@ async function displayGameBoard(boardState)
 
 function createButtons(player)
 {
-  const buttonMove1 = newProgramButton('program-0', {name: 'move', value: 1}, player);
-  const buttonMove2 = newProgramButton('program-1', {name: 'move', value: 2}, player);
-  const buttonTurnLeft = newProgramButton('program-2', {name: 'rotate', value: -1}, player);
-  const buttonTurnRight = newProgramButton('program-3', {name: 'rotate', value: 1}, player);
-  const buttonUTurn = newProgramButton('program-4', {name: 'rotate', value: 2}, player);
+  // const buttonMove1 = newProgramButton('program-0', {name: 'move', value: 1}, player);
+  // const buttonMove2 = newProgramButton('program-1', {name: 'move', value: 2}, player);
+  // const buttonTurnLeft = newProgramButton('program-2', {name: 'rotate', value: -1}, player);
+  // const buttonTurnRight = newProgramButton('program-3', {name: 'rotate', value: 1}, player);
+  // const buttonUTurn = newProgramButton('program-4', {name: 'rotate', value: 2}, player);
+
+  player.programHand.forEach((program, i) => {
+    newProgramButton('program-'+program.place, program, player);
+  });
+
 
   const undoButton = document.getElementById('undo-button');
   undoButton.player = player;
@@ -328,19 +335,33 @@ function createButtons(player)
   readyButton.addEventListener('click', readyButtonFunc, false);
 }
 
+function refreshHand(player)
+{
+  player.programHand.forEach((program, i) => {
+    refreshProgramButton('program-'+program.place, program, player);
+  });
+}
+
 function programButtonFunc()
 {
   this.player.addProgramToQueue(this.program);
+  this.disabled = true;
 }
 
 function undoButtonFunc()
 {
-  this.player.popQueue();
+  const restorePlace = this.player.popQueue();
+  const button = getElementById('program-'+restorePlace);
+  button.disabled = false;
 }
 
 function clearButtonFunc()
 {
-  this.player.clearQueue();
+  let restorePlaces = this.player.clearQueue();
+  restorePlaces.forEach((restorePlace, i) => {
+    const button = getElementById('program-'+restorePlace);
+    button.disabled = false;
+  });
 }
 
 function readyButtonFunc()
@@ -364,6 +385,22 @@ function newProgramButton(buttonId, program, player)
   programButton.addEventListener('click', programButtonFunc, false);
 
   programSection.appendChild(programButton);
+  return programButton
+}
+
+function refreshProgramButton(buttonId, program, player)
+{
+  let programButton = document.getElementById(buttonId);
+  if(programButton == null)
+  {
+    console.log("Unable to find program button " + buttonId);
+  }
+
+  programButton.program = program;
+  programButton.textContent = programToString(program);
+  programButton.player = player;
+  programButton.addEventListener('click', programButtonFunc, false);
+
   return programButton
 }
 

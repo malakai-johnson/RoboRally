@@ -5,6 +5,7 @@ import {
   BoardState,
   boardStateConverter,
   programToString,
+  dealProgramHands,
 } from './boardState.js'
 
 // Firebase App (the core Firebase SDK) is always required
@@ -45,12 +46,12 @@ export async function gameManagement(database, gameid, boardState)
 
       let numberOfPlayers = boardState.players.length;
 
-      console.log("(host)isWon: " + boardState.winner);
       if(boardState.winner != null)
       {
+
         updateDoc(playersReadyDocRef, {
           winner: boardState.winner,
-          isReadyList: new Array(numberOfPlayers).fill(false)
+          isReadyList: new Array(numberOfPlayers).fill(false),
         });
       }
       else
@@ -58,7 +59,8 @@ export async function gameManagement(database, gameid, boardState)
         boardState.executeProgramQueues(programQueues);
         updateDoc(playersReadyDocRef, {
           winner: boardState.winner,
-          isReadyList: new Array(numberOfPlayers).fill(false)
+          isReadyList: new Array(numberOfPlayers).fill(false),
+          programHands: dealProgramHands(numberOfPlayers),
         });
       }
     }

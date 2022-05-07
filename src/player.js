@@ -41,10 +41,11 @@ import {
 
 export class Player
 {
-  constructor (playerNumber, isReady = false, programQueue = new Array())
+  constructor (playerNumber, isReady = false, programQueue = new Array(), programHand = new Array())
   {
     this.playerNumber = playerNumber;
     this.programQueue = programQueue;
+    this.programHand = programHand;
     this.queueListener = function () {console.log("queueListener not set");};
     this.isReady = isReady;
     this.readyListener = function () {console.log("readyListener not set");};
@@ -85,16 +86,25 @@ export class Player
 
   popQueue()
   {
-
     let program = this.programQueue.pop();
+    let handPlace = -1;
+    if(program)
+    {
+      handPlace = program.place;
+    }
     this.queueListener();
-    return program;
+    return handPlace;
   }
 
   clearQueue()
   {
-    this.programQueue.length = 0;
+    const handPlaces = [];
+    while(this.programQueue.length != 0)
+    {
+      handPlaces.push(this.popQueue());
+    }
     this.queueListener();
+    return handPlaces;
   }
 
   setQueueListener(newListener)
@@ -121,6 +131,11 @@ export class Player
       firestoreQueue['phase-' + i] = program;
     });
     return firestoreQueue;
+  }
+
+  updateHand(programHand)
+  {
+    this.programHand = programHand;
   }
 
   readyUp()

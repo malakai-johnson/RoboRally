@@ -409,3 +409,32 @@ export function programToString(program)
         return "Invalid program";
   }
 }
+
+export function dealProgramHands(numberOfPlayers = 1)
+{
+  console.log("dealing programs");
+  const programDeck = [
+    {name: 'move', value: 1}, {name: 'move', value: 1}, {name: 'move', value: 1}, {name: 'move', value: 1}, {name: 'move', value: 1}, {name: 'move', value: 1}, {name: 'move', value: 1}, {name: 'move', value: 1},
+    {name: 'move', value: 2}, {name: 'move', value: 2}, {name: 'move', value: 2}, {name: 'move', value: 2},
+    {name: 'move', value: 3},
+    {name: 'rotate', value: -1}, {name: 'rotate', value: -1}, {name: 'rotate', value: -1}, {name: 'rotate', value: -1}, {name: 'rotate', value: -1}, {name: 'rotate', value: -1},
+    {name: 'rotate', value: 1}, {name: 'rotate', value: 1}, {name: 'rotate', value: 1}, {name: 'rotate', value: 1}, {name: 'rotate', value: 1}, {name: 'rotate', value: 1},
+    {name: 'rotate', value: 2}, {name: 'rotate', value: 2}
+  ];
+  const programHands = {};
+  for(let i = 0; i < numberOfPlayers; i++)
+  {
+    const programHand = {};
+    for(let j = 0; j < 10; j++)
+    {
+      console.log("i: " + i + " j: " + j);
+      programHand['program'+j] = programDeck[Math.floor(Math.random()*programDeck.length)];//choose random program
+      programHand['program'+j].place = i;
+    }
+    if(programHand)
+    {
+      programHands['hand'+i] = programHand;
+    }
+  }
+  return programHands;
+}
