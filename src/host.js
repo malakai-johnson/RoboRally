@@ -43,18 +43,22 @@ export async function gameManagement(database, gameid, boardState)
       console.log("Everyone is ready, executing programs...");
       const programQueues = doc.data().programQueues;
 
-      boardState.executeProgramQueues(programQueues);
-      if(boardState.winner == null)
-      {//if no one has won
-        let numberOfPlayers = boardState.players.length;
+      let numberOfPlayers = boardState.players.length;
+
+      console.log("(host)isWon: " + boardState.winner);
+      if(boardState.winner != null)
+      {
         updateDoc(playersReadyDocRef, {
+          winner: boardState.winner,
           isReadyList: new Array(numberOfPlayers).fill(false)
         });
       }
       else
-      {
+      {//if no one has won
+        boardState.executeProgramQueues(programQueues);
         updateDoc(playersReadyDocRef, {
-          winner: boardState.winner
+          winner: boardState.winner,
+          isReadyList: new Array(numberOfPlayers).fill(false)
         });
       }
     }

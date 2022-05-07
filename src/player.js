@@ -140,7 +140,7 @@ export class Player
   readyDown()
   {
     this.isReady = false;
-    console.log("New Round Begin");
+    console.log("Ready Down");
     this.clearQueue();
     this.readyListener();
   }
@@ -163,9 +163,12 @@ export function setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNu
   if(playersReadyDocSnap.exists())
   {
     let readyList = playersReadyDocSnap.data().isReadyList;
+    console.log("readyList.length: " + readyList.length);
     let programQueues = playersReadyDocSnap.data().programQueues;
     readyList[playerNumber] = isReady;
     programQueues[playerNumber] = playerProgramQueue;
+    console.log("ReadyList:" + readyList);
+    console.log(programQueues);
     updateDoc(playersReadyDocRef, {
       isReadyList: readyList,
       programQueues: programQueues,
