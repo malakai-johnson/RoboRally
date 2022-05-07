@@ -224,19 +224,22 @@ async function main()
     if(player.isReady)
     {
       programUI.style.display = 'none';
-      messageCenter.textContent = "Ready. Waiting on other Players.";
-      console.log("Ready. Waiting on other Players.");
-      player.queueString();
+      messageCenter.textContent = "Waiting on other Players...";
       setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, true, player.queueToFirestore());
     }
     else {
       console.log("Player not ready.");
       programUI.style.display = 'block';
-      // setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, false, player.queueToFirestore());
+      messageCenter.textContent = "Plan your next play";
+      setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, false, player.queueToFirestore());
     }
   });
 
   const onReadyChange = onSnapshot(playersReadyDocRef, (doc) => {
+    if(doc.winner)
+    {
+      messageCenter.textContent = "Player " + doc.winner + " has won!";
+    }
     if(!doc.data().isReadyList[player.playerNumber])
     {
       player.readyDown();
