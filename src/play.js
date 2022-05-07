@@ -275,8 +275,8 @@ async function main()
     }
     else
     {
-      undoButton.disabled = false;
-      clearButton.disabled = false;
+      undoButton.disabled = true;
+      clearButton.disabled = true;
     }
 
     if(player.isQueueFull())
