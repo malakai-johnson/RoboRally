@@ -243,7 +243,7 @@ export class BoardState
         if(this.players[playerNumber].x >= this.boardSize.x)
         {
           console.log("Cannot leave board!");
-          this.players[playerNumber].x = this.boardSize.x;
+          this.players[playerNumber].x = this.boardSize.x -1;
         }
         if(this.players[playerNumber].y < 0)
         {
@@ -253,7 +253,7 @@ export class BoardState
         if(this.players[playerNumber].y >= this.boardSize.y)
         {
           console.log("Cannot leave board!");
-          this.players[playerNumber].y = this.boardSize.y;
+          this.players[playerNumber].y = this.boardSize.y -1;
         }
         break;
       case 'rotate':
@@ -366,6 +366,7 @@ export const boardStateConverter = {
 
 export function programToString(program)
 {
+  if(!program) return "";
   switch(program.name)
   {
     case 'move':

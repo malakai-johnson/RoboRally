@@ -143,10 +143,17 @@ async function main()
   // console.log(player.toString());
   const programQueue = new Array();
 
+  let winner = playersReadyDocSnap.data().winner;
+
   player.setReadyListener(function(){
     console.log(player.toString());
     console.log("player.isReady: " + player.isReady);
-    if(player.isReady)
+    if(winner != null)
+    {
+      programUI.style.display = 'none';
+      messageCenter.textContent = "Player " + winner + " has won!";
+    }
+    else if(player.isReady)
     {
       programUI.style.display = 'none';
       messageCenter.textContent = "Waiting on other Players...";
@@ -161,9 +168,11 @@ async function main()
   });
 
   const onReadyChange = onSnapshot(playersReadyDocRef, (doc) => {
-    if(doc.winner)
+    if(doc.data().winner != null)
     {
-      messageCenter.textContent = "Player " + doc.winner + " has won!";
+      winner = doc.data().winner;
+      programUI.style.display = 'none';
+      messageCenter.textContent = "Player " + doc.data().winner + " has won!";
     }
     if(!doc.data().isReadyList[player.playerNumber])
     {
