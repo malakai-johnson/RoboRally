@@ -35,9 +35,9 @@ export class BoardState
     this.boardSize = {x: 13, y: 13};
     this.spawnPoints = [
       {x: 1, y: 1, direction: 'south', nextGoal: 0},
-      {x: 1, y: this.boardSize.y - 1, direction: 'west', nextGoal: 0},
-      {x: this.boardSize.x - 1, y: 1, direction: 'east', nextGoal: 0},
-      {x: this.boardSize.x - 1, y: this.boardSize.y - 1, direction: 'north', nextGoal: 0}
+      {x: 1, y: this.boardSize.y - 2, direction: 'east', nextGoal: 0},
+      {x: this.boardSize.x - 2, y: 1, direction: 'west', nextGoal: 0},
+      {x: this.boardSize.x - 2, y: this.boardSize.y - 2, direction: 'north', nextGoal: 0}
     ];
 
     this.numberOfPhases = 5;
@@ -153,6 +153,7 @@ export class BoardState
   addPlayer(playerNumber)
   {
     this.players[playerNumber] = this.spawnPoints[playerNumber % this.spawnPoints.length];
+    this.boardStateListener();
   }
 
   playerToString(player)
@@ -220,40 +221,37 @@ export class BoardState
     switch(program.name)
     {
       case 'move':
-        switch(this.players[playerNumber].direction)
+        for(let spaces = program.value; spaces > 0; spaces--)
         {
-          case 'north':
-            this.players[playerNumber].y -= program.value;
-            break;
-          case 'south':
-            this.players[playerNumber].y += program.value;
-            break;
-          case 'east':
-            this.players[playerNumber].x += program.value;
-            break;
-          case 'west':
-            this.players[playerNumber].x -= program.value;
-            break;
-        }
-        if(this.players[playerNumber].x < 0)
-        {
-          console.log("Cannot leave board!");
-          this.players[playerNumber].x = 0;
-        }
-        if(this.players[playerNumber].x >= this.boardSize.x)
-        {
-          console.log("Cannot leave board!");
-          this.players[playerNumber].x = this.boardSize.x -1;
-        }
-        if(this.players[playerNumber].y < 0)
-        {
-          console.log("Cannot leave board!");
-          this.players[playerNumber].y = 0;
-        }
-        if(this.players[playerNumber].y >= this.boardSize.y)
-        {
-          console.log("Cannot leave board!");
-          this.players[playerNumber].y = this.boardSize.y -1;
+          let x = this.players[playerNumber].x;
+          let y = this.players[playerNumber].y;
+          switch(this.players[playerNumber].direction)
+          {
+            case 'north':
+              if(this.validMove(x, y, x, y-1))
+              {
+                this.players[playerNumber].y--;
+              }
+              break;
+            case 'south':
+              if(this.validMove(x, y, x, y+1))
+              {
+                this.players[playerNumber].y++;
+              }
+              break;
+            case 'east':
+              if(this.validMove(x, y, x+1, y))
+              {
+                this.players[playerNumber].x++;
+              }
+              break;
+            case 'west':
+              if(this.validMove(x, y, x-1, y))
+              {
+                this.players[playerNumber].x--;
+              }
+              break;
+          }
         }
         break;
       case 'rotate':
@@ -271,6 +269,28 @@ export class BoardState
         console.log("Invalid program name");
         break;
     }
+  }
+
+  validMove(x1, y1, x2, y2)
+  {
+    if(x2 < 0)
+    {
+      return false;
+    }
+    if(x2 >= this.boardSize.x)
+    {
+      return false;
+    }
+    if(y2 < 0)
+    {
+      return false;
+    }
+    if(y2 >= this.boardSize.y)
+    {
+      return false;
+    }
+
+    return true;
   }
 
   executeProgramQueues(programQueues)
@@ -340,6 +360,7 @@ export class BoardState
       return false;
     }
   }
+
   onBoardStateChange(newBoardStateListener)
   {
     this.boardStateListener = newBoardStateListener;
