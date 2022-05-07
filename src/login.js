@@ -145,33 +145,40 @@ async function main()
       {
         console.log("You own this game, redirecting...");
         localStorage.setItem("gameid", inputGameid.value);
+        localStorage.setItem("isHost", true);
         location.href = '/play.html';
+        // window.open('/play.html', '_blank');
       }
       else if (newGameSnap.data().playerList.some(player => auth.currentUser.uid == player.userId))
       {
         console.log("You are in this game, redirecting...");
         localStorage.setItem("gameid", inputGameid.value);
+        localStorage.setItem("isHost", false);
         location.href = '/play.html';
+        // window.open('/play.html', '_blank');
       }
-      else if (newGameSnap.data().playerList.length < maxPlayerCount)
+      else if ( !newGameSnap.data().isStarted && newGameSnap.data().playerList.length < maxPlayerCount)
       {
-        joinGame(database, auth, inputGameid.value, newGame);
+        await joinGame(database, auth, inputGameid.value, newGame);
         console.log("You have joined this game, redirecting...");
         localStorage.setItem("gameid", inputGameid.value);
+        localStorage.setItem("isHost", false);
         location.href = '/play.html';
+        // window.open('/play.html', '_blank');
       }
       else
       {
-        console.log("The game with gameid '" + inputGameid.value + "' is full.");
+        console.log("The game with gameid '" + inputGameid.value + "' is closed.");
         const newGameCreationMessage = document.createElement('p');
-        newGameCreationMessage.textContent = "The game with gameid '" + inputGameid.value + "' is full.";
+        newGameCreationMessage.textContent = "The game with gameid '" + inputGameid.value + "' is closed.";
         gameCreationMessages.appendChild(newGameCreationMessage);
       }
 
 
     }else {
-      initializeGame(database, auth, inputGameid.value, newGame);
+      await initializeGame(database, auth, inputGameid.value, newGame);
       localStorage.setItem("gameid", inputGameid.value);
+      localStorage.setItem("isHost", true);
       const newGameCreationMessage = document.createElement('p');
 
       newGameSnap = await getDoc(newGame);
@@ -179,6 +186,7 @@ async function main()
         newGameCreationMessage.textContent = "Created new game with gameid: '" + inputGameid.value + "'";
         gameCreationMessages.appendChild(newGameCreationMessage);
         location.href = '/play.html';
+        // window.open('/play.html', '_blank');
       }
       else {
           newGameCreationMessage.textContent = "Failed to create new game with gameid: '" + inputGameid.value + "'";
@@ -200,6 +208,7 @@ function initializeGame(database, auth, gameid, gameDoc)
     hostUserId: auth.currentUser.uid,
     hostDisplayName: auth.currentUser.displayName,
     timestamp: Date.now(),
+    isStarted: false,
     playerList: [{userId: auth.currentUser.uid, username: auth.currentUser.displayName}],
   });
   const boardState = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
@@ -222,11 +231,11 @@ async function joinGame(database, auth, gameid, gameDoc)
     playerList: newPlayerList,
   });
 
-  const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
-  const boardStateSnap = await getDoc(boardStateDocRef);
-  const boardState = boardStateSnap.data();
-  boardState.addPlayer(playerNumber);
-  setDoc(boardStateDocRef, boardState);
+  // const boardStateDocRef = doc(database, 'Games', gameid, 'Board', 'boardState').withConverter(boardStateConverter);
+  // const boardStateSnap = await getDoc(boardStateDocRef);
+  // const boardState = boardStateSnap.data();
+  // boardState.addPlayer(playerNumber);
+  // setDoc(boardStateDocRef, boardState);
 
   const playersReadyDocRef = doc(database, 'Games', gameid, 'Board', 'playersReady');
   const playersReadyDocSnap = await getDoc(playersReadyDocRef);
