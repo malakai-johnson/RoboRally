@@ -264,6 +264,30 @@ async function main()
   player.setQueueListener(function(){
     // console.log("Queue changed");
     programQueueElement.textContent = player.queueString();
+    const undoButton = document.getElementById('undo-button');
+    const clearButton = document.getElementById('clear-button');
+    const readyButton = document.getElementById('ready-button');
+
+    if(player.programQueue.length > 0)
+    {
+      undoButton.disabled = false;
+      clearButton.disabled = false;
+    }
+    else
+    {
+      undoButton.disabled = true;
+      clearButton.disabled = true;
+    }
+
+    if(player.isQueueFull())
+    {
+      readyButton.disabled = false;
+    }
+    else
+    {
+      readyButton.disabled = true;
+    }
+
   });
 
   createButtons(player);
