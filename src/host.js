@@ -43,7 +43,7 @@ export async function gameManagement(database, gameid, boardState)
       console.log("Everyone is ready, executing programs...");
       const programQueues = doc.data().programQueues;
 
-      let numberOfPlayers = boardState.players.length;
+      let numberOfPlayers = doc.data().isReadyList.length;
 
       console.log("(host)isWon: " + boardState.winner);
       if(boardState.winner != null)

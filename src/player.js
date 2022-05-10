@@ -158,8 +158,9 @@ export class Player
 
 }
 
-export function setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, isReady, playerProgramQueue = {})
+export async function setPlayerReady(playersReadyDocRef, playerNumber, isReady, playerProgramQueue = {})
 {
+  const playersReadyDocSnap = await getDoc(playersReadyDocRef);
   if(playersReadyDocSnap.exists())
   {
     let readyList = playersReadyDocSnap.data().isReadyList;

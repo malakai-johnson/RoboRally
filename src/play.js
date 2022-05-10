@@ -232,13 +232,13 @@ async function main()
     {
       programUI.style.display = 'none';
       messageCenter.textContent = "Waiting on other Players...";
-      setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, true, player.queueToFirestore());
+      setPlayerReady(playersReadyDocRef, playerNumber, true, player.queueToFirestore());
     }
     else {
       console.log("Player not ready.");
       programUI.style.display = 'block';
       messageCenter.textContent = "Plan your next play";
-      setPlayerReady(playersReadyDocRef, playersReadyDocSnap, playerNumber, false, player.queueToFirestore());
+      setPlayerReady(playersReadyDocRef, playerNumber, false, player.queueToFirestore());
     }
   });
 
