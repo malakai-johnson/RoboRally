@@ -136,7 +136,7 @@ async function main()
       playerNumber = doc.data().playerList.findIndex(playerEntry => {
         return playerEntry.userId == auth.currentUser.uid;
       });
-      detailsPlayerNumber.textContent = "You are Player " + playerNumber;
+      detailsPlayerNumber.textContent = " | You are Player " + playerNumber + " ";
     }
     else
     {
@@ -152,13 +152,13 @@ async function main()
   const detailsHost = document.getElementById('is-host');
   // if(gameDocSnap.data().hostUserId == auth.currentUser.uid){
   if(isHost === true){
-    detailsHost.textContent = "You are the host";
+    detailsHost.textContent = " | You are the host ";
     if(auth.currentUser.uid != gameDocSnap.data().hostUserId)
     {
       console.log("ERROR: You are hosting, but are not the host. host is: " + gameDocSnap.data().hostDisplayName);
     }
   }else {
-    detailsHost.textContent = "You are NOT the host. The host is: " + gameDocSnap.data().hostDisplayName;
+    detailsHost.textContent = " | You are NOT the host. The host is: " + gameDocSnap.data().hostDisplayName;
   }
 
   //Set up boardState management
