@@ -7,17 +7,25 @@
   </head>
   <body>
     <h1>Robo Rally Online</h1>
-    <section id='game-details'></section>
-    <div style="white-space: pre-line" id='board'></div>
-    <canvas id="canvas" width="650" height="650"></canvas>
-    <section id='message-center'></section>
-    <section id='program-ui'>
-      <section id='program-buttons'></section>
-      <button id='undo-button'>Undo</button>
-      <button id='clear-button'>Clear</button>
-      <button type='button' id='ready-button'>READY</button>
+    <section id='game-details'>
+      <p id='game-id'></p>
+      <p id='is-host'></p>
+      <p id='player-number'></p>
+      <p id='player-list' style="white-space: pre-line"></p>
     </section>
-  <section style="white-space: pre-line" id='program-queue'></section>
-  <section style="white-space: pre-line" id='event-feed'>~~HISTORY~~</section>
+    <section id='host-controls'></section>
+    <section id='game' style='display: none'>
+      <div id='board' style="white-space: pre-line"></div>
+      <canvas id="canvas" width="650" height="650"></canvas>
+      <section id='message-center'></section>
+      <section id='program-ui'>
+        <section id='program-buttons'></section>
+        <button id='undo-button'>Undo</button>
+        <button id='clear-button'>Clear</button>
+        <button type='button' id='ready-button'>READY</button>
+      </section>
+      <section id='program-queue' style="white-space: pre-line"></section>
+      <section id='event-feed' style="white-space: pre-line">~~HISTORY~~</section>
+    </section>
   </body>
 </html>
